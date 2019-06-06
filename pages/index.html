@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, height=device-height">
+    <title>Coveo Map</title>
+    <link rel="shortcut icon" href="https://www.coveo.com/public/img/favicon.png">
+    <link rel="stylesheet" href="./css/CoveoFullSearch.css" />
+    <link rel="stylesheet" href="./css/coveoextension.css" />
+    <script class="coveo-script" src="js/CoveoJsSearch.Lazy.js"></script>
+    <script src="js/coveo.googleMap.extension.js"></script>
+    <script src="js/templates/templates.js"></script>
+    <script src="https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/markerclusterer.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCCm-i7I611b3HxtQOCt3NlMtl5-oFX9Oc" async defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var root = document.body;
+            Coveo.SearchEndpoint.endpoints['default'] = new Coveo.SearchEndpoint({
+                restUri: 'https://platform.cloud.coveo.com/rest/search',
+                accessToken: 'xx715dd080-6c1a-4024-9b7e-b5d529e3a009',
+            });
+            Coveo.init(root);
+        })
+    </script>
+</head>
+
+
+<body id="search" class='CoveoSearchInterface' data-enable-history="true" data-auto-trigger-query="true" data-expression="@source==geohash" data-results-per-page='100'>
+    <img class="CoveoLogoOverlay" src="https://www.kayee.nl/wp-content/uploads/2016/05/coveo-logo.png" />
+    <div class='CoveoAnalytics'></div>
+    <div class="CoveoMapWraper">
+        <div class="CoveoGeoHashMap" id="CoveoGeoHashMap" data-template-id="CoveoMapResultTemplate"></div>
+    </div>
+    <div class='coveo-search-section-wrapper'>
+        <div class='coveo-search-section'>
+            <div class="CoveoSearchbox" data-enable-omnibox="true" data-placeholder="" data-enable-query-syntax="true">
+                <span class="CoveoFieldSuggestions" data-field='@dyaddress1stateorprovince' data-header-title="Province"></span>
+                <span class="CoveoFieldSuggestions" data-field='@dyaddress1city' data-header-title="City"></span>
+            </div>
+            <div id="myprecision" style="display:none;padding:5px;color:red;background-color:yellow"></div>
+            <div id="myquery" style="display:block;padding:5px;color:red;background-color:yellow"></div>
+        </div>
+    </div>
+    <div class="coveo-main-section">
+        <div class="coveo-facet-column">
+          <div class="CoveoFacetSlider" data-title="Price (random)" data-field="@dyprice" data-tab="All" data-graph="true" data-range-slider="true"></div>
+          <div class="CoveoFacet" data-title="Hash8" data-field="@geohash8" data-tab="All"></div>
+          <div class="CoveoFacet" data-title="Province" data-field="@dyaddress1stateorprovince" data-tab="All"></div>
+            <div class="CoveoFacet" data-title="City" data-field="@dyaddress1city" data-tab="All"></div>
+            <div class="CoveoFacet" data-title="Build Year" data-field="@dyfiscalyear" data-tab="All"></div>
+          </div>
+        <div class="coveo-results-column">
+            <div class="CoveoBreadcrumb"></div>
+            <div class="coveo-results-header">
+                <div class="coveo-summary-section">
+                    <span class="CoveoQuerySummary"></span>
+                    <span class="CoveoQueryDuration"></span>
+                </div>
+                <div class="CoveoHiddenQuery"></div>
+                <div class="CoveoDidYouMean"></div>
+                <div class="CoveoErrorReport"></div>
+                <div class="CoveoResultsPerPage"></div>
+            </div>
+            <div class="CoveoResultList" data-layout="card">
+                <script id="CoveoMapResultTemplate" class="result-template" type="text/underscore" data-layout="card">
+                    {{
+                        if (raw.distance) {
+                            formatedDistance = raw.distance.toFixed(2);
+                        }
+                    }}
+                    <div="CoveoResultLink">
+                        <div class="coveo-result-frame CoveoMapResultTemplate" onClick="CoveoGeoHashMap.CoveoGeoHashMap.focusOnMarker('<%- raw.urihash %>')">
+                            <div class="coveo-result-row">
+                                <div class="coveo-result-cell" style="padding-left:15px;">
+                                    <div class="coveo-result-row">
+                                        <div class="coveo-result-cell" style="font-size:24px;">
+                                          <a class="CoveoResultLink">
+                                          </a>
+                                        </div>
+                                    </div>
+                                <div class="coveo-result-row">
+                                    <div class="coveo-result-cell" style="font-size:17px;">
+                                        <span class="CoveoText" data-value="in"></span>
+                                        <span class="CoveoFieldValue" data-field="@dyaddress1city"></span><br>
+                                        <span class="CoveoFieldValue" data-field="@dyaddress1stateorprovince"></span>
+                                    </div>
+                                    <div class="coveo-result-cell" style="width:120px; text-align:right; font-size:14px">
+                                            <span class="CoveoText" data-value="Build in"></span></br>
+                                        <span class="CoveoFieldValue" data-field="@dyfiscalyear"></span>
+                                    </div>                            
+                                </div>
+                                <div class="coveo-result-row">
+                                    <div class="coveo-result-cell" style="font-size:17px; font-weight:700">
+                                        <span class="CoveoFieldValue" data-field="@dyprice" data-helper="currency"></span>
+                                    </div>
+                                </div>
+                                <div class="coveo-result-row">
+                                    <div class="coveo-result-cell">
+                                        <span class="CoveoFieldValue" data-field="@myzip"></span><br>
+                                        <span class="CoveoText" data-value="Area (m2): "></span>
+                                        <span class="CoveoFieldValue" data-field="@sfamount"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </script>
+            </div>
+            <div class="CoveoPager"></div>
+        </div>
+    </div>
+</body>
+
+</html>
