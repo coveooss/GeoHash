@@ -53,7 +53,26 @@ Coveo Cloud Organization (with data containing lat/long fields)
 4. `npm run watch` at the top of the repository.
 5. Open your browser and and paste in the url  
 
-## Get Our Data
+## Prepare your index
+In order to get the proper content into the index add the following fields:
+All of type: String, Facet enabled, Use Cache for nested queries (advanced) enabled.
+- geohash2
+- geohash3
+- geohash4
+- geohash5
+- geohash6
+- geohash7
+- geohash8
+
+Also add the fields to hold your lattitude/longitude data:
+All of type: Decimal, Use Cache for numeric queries (advanced) enabled.
+- mylat2
+- mylon2
+
+Fields to hold the demo data:
+- lat, lon, adres, pc (zipcode), wpl (city), gem (state), prov (province), bouwjaar (build in year), kamers (rooms), opp (area)
+
+## Get Your Data
 For this instance we used houses from the Netherlands and we pushed them into a source. See \Resources\Data.
 Important for the data is that they have the proper GeoHash codes in them. The IPE script in \Resources\Data\IPE will add them.
 
