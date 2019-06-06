@@ -1,0 +1,72 @@
+.CoveoGeoHashMap {
+  position: static;
+  overflow: inherit;
+  height: 100%; }
+
+.CoveoMapWraper {
+  width: 100%;
+  height: 600px; }
+
+.CoveoLogoOverlay {
+  position: absolute;
+  z-index: 100;
+  width: 100px;
+  top: 10px;
+  left: 10px; }
+
+.gmnoprint img {
+    max-width: none; 
+}
+
+.coveo-search-section {
+  position: absolute;
+  top: -40px;
+  width: 100%; }
+
+.coveo-search-section-wrapper {
+  display: flex;
+  justify-content: center; }
+
+.CoveoSearchButton {
+  background-color: white;
+  height: 48px; }
+
+.CoveoOmnibox,
+.magic-box-suggestions.magic-box-hasSuggestion {
+  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+  border: none; }
+
+.CoveoOmnibox.magic-box,
+.CoveoSearchButton {
+  border: none; }
+
+.magic-box .magic-box-suggestions .magic-box-suggestion {
+  line-height: 10px;
+  font-size: 14px; }
+
+.CoveoSearchInterface .coveo-main-section {
+  max-width: 1600px; }
+
+.Ratings .coveo-facet-value-caption {
+  color: #296896; }
+
+.coveo-card-layout.CoveoResult,
+.CoveoFacetSlider,
+.CoveoFacetRange,
+.CoveoSearchButtonveoFacet,
+.CoveoFacet {
+  box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  border: none;}
+
+.gm-style-iw div .coveo-card-layout.CoveoResult {
+  box-shadow: none;
+  margin: none;
+  padding: none;
+  font-family: lato }
+
+.gm-style-iw div  coveo-clickable {
+  font-weight: 800;
+}
+
+.gm-style-iw .coveo-card-layout.CoveoResult .CoveoMapResultTemplate {
+  padding: 10px 0 0 0; }

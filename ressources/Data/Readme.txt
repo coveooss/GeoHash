@@ -1,0 +1,1 @@
+https://data.nlextract.nl/bag/csv/bag-adressen-laatst.csv.zip
