@@ -36,7 +36,7 @@ When you zoom in one more time, the geo hashes will not be displayed anymore and
 
 
 
-Visit the [live map](https://elastic.coveodemo.com/geohash/index.html) to have fun with it. 
+Visit the [live map](https://labs.coveodemo.com/geohash/index.html) to have fun with it. 
 
 ## Requirements
 Node JS => 8.0
