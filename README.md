@@ -1,11 +1,11 @@
 # CoveoGeoHashMap 
 This is a branch of the [Coveo Search-ui-seed](https://github.com/coveo/search-ui-seed) a fast starter / seed project to extend the Coveo Javascript Framework.
 
-Read more on [Geohasing](https://en.wikipedia.org/wiki/Geohash).
+Read more on [Geohash](https://en.wikipedia.org/wiki/Geohash).
 
 ## Summary
-During indexing we translate the lattitude/longitude values into geohashes.
-For example: 53.1444/6.04999 translates into u1, u1k, u1kq, u1kq6, u1kq6ft, u1kq6fts geohashes.
+During indexing we translate the lattitude/longitude values into geohash values.
+For example: 53.1444/6.04999 translates into u1, u1k, u1kq, u1kq6, u1kq6ft, u1kq6fts geohash values.
 
 In order to display on a Google Map the information from a large index (>9M documents) we need to perform some grouping. The grouping is done using facet values on each geohash. We have geohash2 to geohash8 facets.
 
