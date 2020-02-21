@@ -5,7 +5,7 @@
 
 .CoveoMapWraper {
   width: 100%;
-  height: 600px; }
+  height: 450px; }
 
 .CoveoLogoOverlay {
   position: absolute;
@@ -45,7 +45,9 @@
   font-size: 14px; }
 
 .CoveoSearchInterface .coveo-main-section {
-  max-width: 1600px; }
+  max-width: 1600px;
+margin-left: 330px;
+ }
 
 .Ratings .coveo-facet-value-caption {
   color: #296896; }

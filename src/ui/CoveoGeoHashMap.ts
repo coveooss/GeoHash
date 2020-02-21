@@ -1,6 +1,7 @@
 import {
   Component,
   IComponentBindings,
+  BreadcrumbEvents,
   QueryEvents,
   IBuildingQueryEventArgs,
   Initialization,
@@ -12,11 +13,15 @@ import {
   TemplateCache,
   TimeSpan,
   QueryBuilder
-} from 'coveo-search-ui';
+} from "coveo-search-ui";
 
 export interface ICoveoGeoHashMapOptions {
   template: Template;
+  latField: string;
+  lonField: string;
 }
+
+const minHashPrecision = 7;
 
 /**
  * Interface used to combine Google Map Markers, Google Info Window
@@ -35,7 +40,7 @@ interface IResultMarker {
  * The Coveo GeoHash Map component Class, extending the Coveo Framework Component
  */
 export class CoveoGeoHashMap extends Component {
-  static ID = 'GeoHashMap';
+  static ID = "GeoHashMap";
 
   /**
    * This section will fetch the data-template-id value of the CoveoGeoHashMap component and
@@ -43,8 +48,10 @@ export class CoveoGeoHashMap extends Component {
    */
   static options: ICoveoGeoHashMapOptions = {
     template: ComponentOptions.buildTemplateOption({
-      defaultFunction: () => TemplateCache.getDefaultTemplate('Default')
-    })
+      defaultFunction: () => TemplateCache.getDefaultTemplate("Default")
+    }),
+    latField: ComponentOptions.buildStringOption(),
+    lonField: ComponentOptions.buildStringOption()
   };
 
   /**
@@ -58,24 +65,43 @@ export class CoveoGeoHashMap extends Component {
   private allBounds: google.maps.LatLngBounds;
   private currentQuery: string;
   private updateBounds: boolean;
+  private addMapQuery: boolean;
   private resultMarkers: { [key: string]: IResultMarker };
 
-  constructor(public element: HTMLElement, public options: ICoveoGeoHashMapOptions, public bindings: IComponentBindings) {
+  constructor(
+    public element: HTMLElement,
+    public options: ICoveoGeoHashMapOptions,
+    public bindings: IComponentBindings
+  ) {
     super(element, CoveoGeoHashMap.ID, bindings);
-    this.options = ComponentOptions.initComponentOptions(element, CoveoGeoHashMap, options);
+    this.options = ComponentOptions.initComponentOptions(
+      element,
+      CoveoGeoHashMap,
+      options
+    );
     this.resultMarkers = {};
-    this.bind.onRootElement(QueryEvents.doneBuildingQuery, (args: IBuildingQueryEventArgs) => this.onDoneBuildingQuery(args));
-    this.bind.onRootElement(QueryEvents.querySuccess, (args: IQuerySuccessEventArgs) => this.onQuerySuccess(args));
-    this.bind.onRootElement(InitializationEvents.afterInitialization, () => this.initMap());
+    this.bind.onRootElement(
+      QueryEvents.doneBuildingQuery,
+      (args: IBuildingQueryEventArgs) => this.onDoneBuildingQuery(args)
+    );
+    this.bind.onRootElement(
+      QueryEvents.querySuccess,
+      (args: IQuerySuccessEventArgs) => this.onQuerySuccess(args)
+    );
+    this.bind.onRootElement(BreadcrumbEvents.clearBreadcrumb, () => this.handleClearBreadcrumb());
+    this.bind.onRootElement(InitializationEvents.afterInitialization, () =>
+      this.initMap()
+    );
   }
 
   private initMap() {
     this.updateBounds = true;
+    this.addMapQuery = false;
     this.currentQuery = "";
     this.googleMap = new google.maps.Map(this.element, {
       center: { lat: 52.1284, lng: 5.123 },
-      zoom: 7,
-      mapTypeControl: true,
+      zoom: 2,
+      mapTypeControl: false,
       mapTypeControlOptions: {
         style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
         position: google.maps.ControlPosition.BOTTOM_CENTER
@@ -84,225 +110,437 @@ export class CoveoGeoHashMap extends Component {
       zoomControlOptions: {
         position: google.maps.ControlPosition.LEFT_CENTER
       },
-      scaleControl: true,
-      streetViewControl: true,
+      scaleControl: false,
+      streetViewControl: false,
       streetViewControlOptions: {
         position: google.maps.ControlPosition.LEFT_BOTTOM
       },
-      fullscreenControl: true
+      fullscreenControl: false
     });
-    this.precision = 1;
+    this.precision = 2;
     //this.getPersistentMarkers();
   }
 
+  private computeArea(bounds) {
+    if (!bounds) {
+      return 0;
+    }
+    var sw = bounds.getSouthWest();
+    var ne = bounds.getNorthEast();
+    var southWest = new google.maps.LatLng(sw.lat(), sw.lng());
+    var northEast = new google.maps.LatLng(ne.lat(), ne.lng());
+    var southEast = new google.maps.LatLng(sw.lat(), ne.lng());
+    var northWest = new google.maps.LatLng(ne.lat(), sw.lng());
+    return (
+      google.maps.geometry.spherical.computeArea([
+        northEast,
+        northWest,
+        southWest,
+        southEast
+      ]) / 1000000
+    );
+  }
 
-  private calcPrecision() {
+  private calcPrecision(current) {
+    //Use the zoom
+    var curzoom = current.googleMap.getZoom();
+    //var ZOOMLEVELS = { 3: 7, 4 : 10, 5 : 12, 6 : 15, 7 : 17, 8 : 17 };
+    var ZOOMLEVELS = [
+      [5, 3],
+      [7, 4],
+      [9, 5],
+      [10, 6],
+      [12, 6],
+      [15, 7],
+      [17, 8],
+      [20, 8]
+    ];
+    var precision = 2;
+    for (var i = 0; i < ZOOMLEVELS.length; i++) {
+      var level = ZOOMLEVELS[i];
+      if (curzoom >= level[0]) precision = level[1];
+    }
+
+    current.precision = precision;
     //Precision needed for the GeoHash, this will be done based upon the zoom level of the map
-    var precision = 1;
-    var zoom = this.googleMap.getZoom();
-    if (zoom >= 6) precision = 3;
-    if (zoom >= 7) precision = 4;
-    if (zoom >= 8) precision = 4;
-    if (zoom >= 9) precision = 5;
-    if (zoom >= 10) precision = 5;
-    if (zoom >= 11) precision = 5;
-    if (zoom >= 12) precision = 6;
-    if (zoom >= 13) precision = 6;
-    if (zoom >= 14) precision = 7;
-    if (zoom >= 15) precision = 7;
-    if (zoom >= 16) precision = 7;
-    if (zoom >= 17) precision = 8;
-    if (zoom >= 18) precision = 8;
-    if (zoom >= 19) precision = 8;
-    if (zoom >= 20) precision = 9;
-    document.getElementById("myprecision").innerHTML = String(this.googleMap.getZoom()) + "/" + String(precision);
-    this.precision = precision;
+    //Use the Area of the boudingbox
+    /*var area = current.computeArea(current.googleMap.getBounds());
+    if (area==0) { current.precision = 2; return 2;}
+    var precision = 2;
+    
+   if (area < 8090000 ) precision = 3;
+   if (area < 2302312 ) precision = 3;
+    if (area < 214218 ) precision = 4;
+    if (area < 10000 ) precision = 5;
+    if (area < 2500 ) precision = 6;
+    if (area < 10 ) precision = 7;
+    if (area < 2 ) precision = 8;
+    document.getElementById("myprecision").innerHTML = String(area)+"/"+String(current.googleMap.getZoom()) + "/" + String(precision);
+    */
+    document.getElementById("myprecision").innerHTML =
+      String(curzoom) + "/" + String(precision);
+    current.precision = precision;
     return precision;
+  }
+
+  private handleClearBreadcrumb() {
+    google.maps.event.removeListener(this.idleListener);
+    this.addMapQuery = false;
   }
 
   private onDoneBuildingQuery(args: IBuildingQueryEventArgs) {
     //When the query is build, we need to check if the basic query changed, if so, we need to update the bounds
     //if not, we will add the current bounds of the map to the advanced query
-    const queryBuilder = args.queryBuilder;
-    var latfield = "mylat2";
-    var lonfield = "mylon2";
+    //Only when the tab is 'default'
     google.maps.event.removeListener(this.idleListener);
-    this.allBounds = new google.maps.LatLngBounds();
+    //if (args.queryBuilder.tab === "default") {
+      const queryBuilder = args.queryBuilder;
+      var latfield = this.options.latField;
+      var lonfield = this.options.lonField;
+      this.allBounds = new google.maps.LatLngBounds();
 
-    this.updateBounds = true;
-    //Only update bounds when the entered query is different than the previous one
-    if (args.queryBuilder.expression.build() == this.currentQuery) {
-      this.updateBounds = false;
-    }
-    if (this.currentQuery == "") this.updateBounds = false;
-    this.currentQuery = args.queryBuilder.expression.build();
-    if (!this.updateBounds) {
-      var bounds2 = this.googleMap.getBounds();
-      if (bounds2 != undefined) {
-        if (!isNaN(bounds2.getNorthEast().lat())) {
-          var ne = bounds2.getNorthEast(); // LatLng of the north-east corner
-          var sw = bounds2.getSouthWest(); // LatLng of the south-west corder
-          var query = '';
-          //|------------------|
-          //|           NE 53,6|  //lat,lon
-          //|                  |
-          //|SW 52,4           |
-          if (ne.lat() > sw.lat()) //ne=67>sw=-5
-          {
-            query = '@' + latfield + '<=' + ne.lat() + ' AND @' + latfield + '>=' + sw.lat();
-          } else {
-            query = '@' + latfield + '>=' + ne.lat() + ' AND @' + latfield + '<=' + sw.lat();
+      this.updateBounds = true;
+      //Only update bounds when the entered query is different than the previous one
+      if (args.queryBuilder.expression.build() == this.currentQuery) {
+        this.updateBounds = false;
+      } else {
+        this.updateBounds = true;
+        //Reset map to original position
+        //We do nothing!!!
+        //this.googleMap.setZoom(3);
+        //this.googleMap.setCenter(new google.maps.LatLng(52.1284, 5.123));
+        //this.precision = 2;
+        //this.updateBounds = false;
+      }
+      if (this.currentQuery == "") this.updateBounds = true;
+      //We want to add a distance boost so that results nearby the center are being boosted
+      if (this.precision >= minHashPrecision) {
+        var boostQuery =
+          "$qrf(expression:'-dist(@" +
+          this.options.latField +
+          ", @" +
+          this.options.lonField +
+          ", " +
+          this.googleMap.getCenter().lat() +
+          ", " +
+          this.googleMap.getCenter().lng() +
+          ")',normalizeWeight: 'true',modifier:100)";
+        args.queryBuilder.advancedExpression.add(boostQuery);
+      }
+      this.currentQuery = args.queryBuilder.expression.build();
+      //if (!this.addMapQuery) this.updateBounds = true;
+      if (!this.updateBounds) {
+        var bounds2 = this.googleMap.getBounds();
+        if (bounds2 != undefined) {
+          if (!isNaN(bounds2.getNorthEast().lat())) {
+            var ne = bounds2.getNorthEast(); // LatLng of the north-east corner
+            var sw = bounds2.getSouthWest(); // LatLng of the south-west corder
+            var query = "";
+            //|------------------|
+            //|           NE 53,6|  //lat,lon
+            //|                  |
+            //|SW 52,4           |
+            if (ne.lat() > sw.lat()) {
+              //ne=67>sw=-5
+              query =
+                "@" +
+                latfield +
+                "<=" +
+                ne.lat() +
+                " AND @" +
+                latfield +
+                ">=" +
+                sw.lat();
+            } else {
+              query =
+                "@" +
+                latfield +
+                ">=" +
+                ne.lat() +
+                " AND @" +
+                latfield +
+                "<=" +
+                sw.lat();
+            }
+            if (ne.lng() > sw.lng()) {
+              //ne=67>sw=-5  -70 -142
+              query =
+                query +
+                " @" +
+                lonfield +
+                "<=" +
+                ne.lng() +
+                " AND @" +
+                lonfield +
+                ">=" +
+                sw.lng();
+            } else {
+              query =
+                query +
+                " @" +
+                lonfield +
+                ">=" +
+                ne.lng() +
+                " AND @" +
+                lonfield +
+                "<=" +
+                sw.lng();
+              //172 -64
+              //-64 172
+            }
+            //document.getElementById("myquery").innerHTML = query;
+            document.getElementById("myquery").innerHTML = "";
+            queryBuilder.advancedExpression.add(query);
           }
-          if (ne.lng() > sw.lng()) //ne=67>sw=-5  -70 -142
-          {
-            query = query + ' @' + lonfield + '<=' + ne.lng() + ' AND @' + lonfield + '>=' + sw.lng();
-          } else {
-            query = query + ' @' + lonfield + '>=' + ne.lng() + ' AND @' + lonfield + '<=' + sw.lng();
-            //172 -64
-            //-64 172
-          }
-          queryBuilder.advancedExpression.add(query);
         }
       }
-    }
-
+    //}
   }
 
   private addIdleListener(slow: boolean, reference: any) {
     //Adds the google map idle listener (which fires when map is completely reloaded)
     //when the map is idle, we want to re-execute the query
+    this.addMapQuery = true;
     if (slow) {
-      setTimeout(function () {
-        reference.idleListener = reference.googleMap.addListener('idle', function (ev) {
-          setTimeout(function () {
-            reference.searchInterface.queryController.executeQuery();
-          }, 1000);
-        });
-      }, 1000);
-
-    }
-    else {
-      reference.idleListener = reference.googleMap.addListener('idle', function (ev) {
-        setTimeout(function () {
+      setTimeout(function() {
+        console.log("Adding Idle listener");
+        reference.idleListener = reference.googleMap.addListener(
+          "idle",
+          function(ev) {
+            setTimeout(function() {
+              console.log("Map is idle, re execute query");
+              reference.searchInterface.queryController.executeQuery();
+            }, 500);
+          }
+        );
+      }, 500);
+    } else {
+      reference.idleListener = reference.googleMap.addListener("idle", function(
+        ev
+      ) {
+        setTimeout(function() {
           reference.searchInterface.queryController.executeQuery();
-        }, 1000);
+        }, 500);
       });
     }
   }
 
   private onQuerySuccess(args: IQuerySuccessEventArgs) {
     //When the query is executed, we want to fetch the GeoHashes
-
-    this.closeAllInfoWindows();
-    this.clearResultMarkers();
-    var precision = this.calcPrecision();
-    //When updating bounds we do not know the exact precision
-    if (this.updateBounds) {
-      if (precision >= 7) precision = 6; else precision = precision + 1;
-      this.precision = precision;
-    }
-    if (precision > 1) {
-      var fieldname = "@geohash" + String(precision);
-      if (precision > 8) {
-        //If precision is to high, we need to get the individual results.
-        fieldname = "";
-        let current = this;
-        document.getElementById("myquery").innerHTML = this.updateBounds + "/Zoom: " + String(this.googleMap.getZoom()) + ", ";
-        var myquery = args.queryBuilder.computeCompleteExpression();
-        t0 = performance.now();
-        Coveo.SearchEndpoint.endpoints.default.search({ q: myquery, numberOfResults: 500 }).done(function (response) {
-          var t1 = performance.now();
-          var values = response;
-
-          document.getElementById("myquery").innerHTML += ", Nr of Single Values: " + String(values.results.length) + " in: " + Math.round((t1 - t0) / 1000) + " secs";
-          values.results.forEach(result => {
-            result.searchInterface = current.searchInterface;
-            result.index = 101;
-
-            const resultMarker = current.plotItem(result);
-            current.plotItemAsRelevant(resultMarker);
-          });
-        });
-        if (current.updateBounds) {
-          current.googleMap.fitBounds(current.allBounds);
-        }
-        current.addIdleListener(true, current);
+    //Since the already executed advancedExpressions contains all the proper logic.
+    //if (args.queryBuilder.tab === "default") {
+      var thequery =
+        args.results.basicExpression != undefined
+          ? args.results.basicExpression
+          : " @uri ";
+      thequery += " ";
+      thequery +=
+        args.results.constantExpression != undefined
+          ? args.results.constantExpression
+          : " ";
+      thequery += " ";
+      thequery +=
+        args.results.advancedExpression != undefined
+          ? args.results.advancedExpression
+          : " ";
+      this.closeAllInfoWindows();
+      this.clearResultMarkers();
+      var precision = this.calcPrecision(this);
+      //When updating bounds we do not know the exact precision
+      if (this.updateBounds) {
+        if (precision >= 7) precision = 6; //else precision = precision + 1;
+        this.precision = precision;
       }
-      else {
-        //First execute the listFieldValues with the proper geoHash field
-        document.getElementById("myquery").innerHTML = this.updateBounds + "/Zoom: " + String(this.googleMap.getZoom()) + ", Field: " + fieldname;
-        var myRequest = {
-          field: fieldname,
-          sortCriteria: "occurrences",
-          maximumNumberOfValues: 15000,
-          queryOverride: args.queryBuilder.computeCompleteExpression()
-        };
-        let current = this;
-        var t0 = performance.now();
-        var max = 0;
-        Coveo.SearchEndpoint.endpoints.default.listFieldValues(myRequest).done(function (response) {
-          var t1 = performance.now();
-          var values = response;
-          var singles = [];
-          for (var i = 0; i < values.length; i++) {
-            if (i == 0) max = values[i].numberOfResults;
-            values[i].value;
-            values[i].lookupValue;
-            values[i].numberOfResults;
-          }
-          //Check if we have limited results, if so we will not plot geohashes, only the individual results
-          var onlyFullQuery = false;
-          var allCount = 0;
-          document.getElementById("myquery").innerHTML += ", Nr of Values: " + String(values.length) + " in: " + Math.round((t1 - t0) / 1000) + " secs";
-          values.forEach(result => {
-            allCount += result.numberOfResults;
-          });
-          if (allCount < 300) {
-            onlyFullQuery = true;
-            document.getElementById("myquery").innerHTML += ", Less results (" + allCount + "), execute full only ";
-          }
-          if (!onlyFullQuery) {
-            //Plot the GeoHash squares
-            values.forEach(result => {
-              if (result.numberOfResults > 1) {
-                const resultMarker = current.plotGroupItem(result, max);
-              }
-              else {
-                //Single values we need to capture so we can execute them later
-                singles.push(result.value);
-              }
-            });
-          }
+      if (precision > 1) {
+        var fieldname = "@geohash" + String(precision);
+        if (precision > 8) {
+          //If precision is to high, we need to get the individual results.
+          fieldname = "";
+          let current = this;
+          var allmarkers = [];
 
-          //Execute another query with the single values or the fullquery
-          if (singles.length > 0 || onlyFullQuery) {
-            var myquery = args.queryBuilder.computeCompleteExpression();
-            var nrofresults = singles.length + 1;
-            if (!onlyFullQuery) {
-              myquery += " AND " + fieldname + "==(" + singles.join(",") + ")";
-            }
-            else nrofresults = 500;
-            t0 = performance.now();
-            Coveo.SearchEndpoint.endpoints.default.search({ q: '@uri', aq: myquery, numberOfResults: nrofresults }).done(function (response) {
+          document.getElementById("myquery").innerHTML +=
+            this.updateBounds +
+            "/Zoom: " +
+            String(this.googleMap.getZoom()) +
+            ", ";
+          var myquery = ""; //args.queryBuilder.computeCompleteExpression();
+          myquery = thequery;
+          t0 = performance.now();
+          Coveo.SearchEndpoint.endpoints.default
+            .search({ q: myquery, numberOfResults: 500 })
+            .done(function(response) {
               var t1 = performance.now();
               var values = response;
 
-              document.getElementById("myquery").innerHTML += ", Nr of Single Values: " + String(values.results.length) + " in: " + Math.round((t1 - t0) / 1000) + " secs";
+              document.getElementById("myquery").innerHTML +=
+                ", Nr of Single Values: " +
+                String(values.results.length) +
+                " in: " +
+                Math.round((t1 - t0) / 1000) +
+                " secs";
               values.results.forEach(result => {
                 result.searchInterface = current.searchInterface;
                 result.index = 101;
+
                 const resultMarker = current.plotItem(result);
                 current.plotItemAsRelevant(resultMarker);
+                const myMark = current.getResultMarker(result);
+                allmarkers.push(myMark.marker);
               });
+              current.clusterMap = new MarkerClusterer(
+                current.googleMap,
+                allmarkers,
+                {
+                  imagePath:
+                    "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m",
+                  minimumClusterSize: 1
+                }
+              );
+              //current.clusterMap.updateClusters();
             });
-          }
           if (current.updateBounds) {
             current.googleMap.fitBounds(current.allBounds);
           }
           current.addIdleListener(true, current);
-        });
+        } else {
+          var allmarkers = [];
+
+          //First execute the listFieldValues with the proper geoHash field
+          document.getElementById("myquery").innerHTML +=
+            this.updateBounds +
+            "/Zoom: " +
+            String(this.googleMap.getZoom()) +
+            ", Field: " +
+            fieldname;
+          var myRequest = {
+            field: fieldname,
+            sortCriteria: "occurrences",
+            maximumNumberOfValues: 15000,
+            queryOverride: thequery //args.queryBuilder.computeCompleteExpression()
+          };
+          let current = this;
+          var t0 = performance.now();
+          var max = 0;
+          Coveo.SearchEndpoint.endpoints.default
+            .listFieldValues(myRequest)
+            .done(function(response) {
+              var t1 = performance.now();
+              var values = response;
+              var singles = [];
+              for (var i = 0; i < values.length; i++) {
+                if (i == 0) max = values[i].numberOfResults;
+                values[i].value;
+                values[i].lookupValue;
+                values[i].numberOfResults;
+              }
+              //Check if we have limited results, if so we will not plot geohashes, only the individual results
+              var onlyFullQuery = false;
+              var allCount = 0;
+
+              values.forEach(result => {
+                allCount += result.numberOfResults;
+              });
+              document.getElementById("myquery").innerHTML +=
+                ", All count: " +
+                String(allCount) +
+                ", Nr of Values: " +
+                String(values.length) +
+                " in: " +
+                Math.round((t1 - t0) / 1000) +
+                " secs";
+              if (allCount < 300) {
+                onlyFullQuery = true;
+                document.getElementById("myquery").innerHTML +=
+                  ", Less results (" + allCount + "), full only ";
+              }
+              if (!onlyFullQuery) {
+                //Plot the GeoHash squares
+                values.forEach(result => {
+                  if (precision <= minHashPrecision) {
+                    const resultMarker = current.plotGroupItem(result, max);
+                    current.plotItemAsRelevant(resultMarker);
+                    const myMark = current.getResultGroupMarker(result, max);
+                    myMark.marker["total"] = result.numberOfResults;
+                    myMark.marker["rectbounds"] = myMark.rect;
+                    allmarkers.push(myMark.marker);
+                  } else {
+                    if (result.numberOfResults > 1) {
+                      //const resultMarker = current.plotGroupItem(result, max);
+                      //We always want to use clusters, so no GroupFrame
+                      singles.push(result.value);
+                    } else {
+                      //Single values we need to capture so we can execute them later
+                      singles.push(result.value);
+                    }
+                  }
+                });
+              }
+
+              //Execute another query with the single values or the fullquery
+              if (singles.length > 0 || onlyFullQuery) {
+                var myquery = thequery; //args.queryBuilder.computeCompleteExpression();
+                var nrofresults = singles.length + 1;
+                if (!onlyFullQuery) {
+                  myquery +=
+                    " AND " + fieldname + "==(" + singles.join(",") + ")";
+                } else nrofresults = 500;
+                t0 = performance.now();
+                Coveo.SearchEndpoint.endpoints.default
+                  .search({
+                    q: "@uri",
+                    aq: myquery,
+                    numberOfResults: nrofresults
+                  })
+                  .done(function(response) {
+                    var t1 = performance.now();
+                    var values = response;
+
+                    document.getElementById("myquery").innerHTML +=
+                      ", Nr of Single Values: " +
+                      String(values.results.length) +
+                      " in: " +
+                      Math.round((t1 - t0) / 1000) +
+                      " secs";
+                    values.results.forEach(result => {
+                      result.searchInterface = current.searchInterface;
+                      result.index = 101;
+                      const resultMarker = current.plotItem(result);
+                      current.plotItemAsRelevant(resultMarker);
+                      const myMark = current.getResultMarker(result);
+                      allmarkers.push(myMark.marker);
+                    });
+                    current.clusterMap = new MarkerClusterer(
+                      current.googleMap,
+                      allmarkers,
+                      {
+                        imagePath:
+                          "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m",
+                        minimumClusterSize: 2
+                      }
+                    );
+                    //current.clusterMap.updateClusters();
+                  });
+              } else {
+                current.clusterMap = new MarkerClusterer(
+                  current.googleMap,
+                  allmarkers,
+                  {
+                    imagePath:
+                      "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m",
+                    minimumClusterSize: 1
+                  }
+                );
+                //current.clusterMap.updateClusters();
+              }
+              if (current.updateBounds) {
+                current.googleMap.fitBounds(current.allBounds);
+              }
+              current.addIdleListener(true, current);
+            });
+        }
       }
-    }
+    //}
   }
 
   private plotItem(result: IQueryResult): IResultMarker {
@@ -313,13 +551,14 @@ export class CoveoGeoHashMap extends Component {
 
   private plotGroupItem(result: any, max: number): IResultMarker {
     const resultMarker = this.getResultGroupMarker(result, max);
+    if (resultMarker == undefined) return undefined;
     resultMarker.result = result;
 
-    var scaleNr = 12 - (this.precision / 2);
-    if (resultMarker.marker != null && this.precision >= 6) {
+    var scaleNr = 12 - this.precision / 2;
+    if (resultMarker.marker != null && this.precision >= minHashPrecision) {
       //We want to plot an icon (transparent), we only want to show the label
       resultMarker.marker.setIcon({
-        url: 'empty.png',
+        url: "empty.png",
         scale: 1,
         fillColor: "#0A1CEE",
         fillOpacity: 1,
@@ -340,7 +579,8 @@ export class CoveoGeoHashMap extends Component {
    * As for the relevant items we use blue markers with a full opacity, this way it is easy to differenciate the type of results.
    */
   private setMarkerAsRelevant(marker: google.maps.Marker) {
-    marker.setIcon('pin5.png');
+    //marker.setIcon('pin5.png');
+    marker.setIcon("mypin2.png");
     marker.setOpacity(1);
     marker.setZIndex(100);
   }
@@ -364,7 +604,8 @@ export class CoveoGeoHashMap extends Component {
     const key = result.value;
     if (!this.resultMarkers[key]) {
       // If the query returns an item that didn't already have a marker it will create it.
-      this.resultMarkers[key] = this.createResultGroupMarker(result, max);
+      var mark = this.createResultGroupMarker(result, max);
+      if (mark != undefined) this.resultMarkers[key] = mark;
     }
     return this.resultMarkers[key];
   }
@@ -374,33 +615,40 @@ export class CoveoGeoHashMap extends Component {
     const rect = null;
     // This creates the marker with all the information to fill the result template that open in the map, in Google map this is called InfoWindow.
     const resultMarker: IResultMarker = {
-      marker, result, rect, isOpen: false, id: result.raw.urihash
+      marker,
+      result,
+      rect,
+      isOpen: false,
+      id: result.raw.urihash
     };
     this.attachInfoWindowOnClick(resultMarker);
     return resultMarker;
   }
 
   private refine_interval(interval, cd, mask) {
-    if (cd & mask)
-      interval[0] = (interval[0] + interval[1]) / 2;
-    else
-      interval[1] = (interval[0] + interval[1]) / 2;
+    if (cd & mask) interval[0] = (interval[0] + interval[1]) / 2;
+    else interval[1] = (interval[0] + interval[1]) / 2;
   }
 
   private hashBounds(geohash: string): any {
     var evenBit = true;
     var BITS = [16, 8, 4, 2, 1];
     var BASE32 = "0123456789bcdefghjkmnpqrstuvwxyz";
-    var latMin = -90, latMax = 90;
-    var lonMin = -180, lonMax = 180;
+    var latMin = -90,
+      latMax = 90;
+    var lonMin = -180,
+      lonMax = 180;
 
     for (var i = 0; i < geohash.length; i++) {
       var chr = geohash.charAt(i);
       var idx = BASE32.indexOf(chr);
-      if (idx == -1) throw new Error('Invalid geohash');
+      if (idx == -1) {
+        console.log("Invalid geohash: " + geohash);
+        return undefined;
+      } //throw new Error('Invalid geohash');
 
       for (var n = 4; n >= 0; n--) {
-        var bitN = idx >> n & 1;
+        var bitN = (idx >> n) & 1;
         if (evenBit) {
           // longitude
           var lonMid = (lonMin + lonMax) / 2;
@@ -424,7 +672,7 @@ export class CoveoGeoHashMap extends Component {
 
     var bounds = {
       sw: { lat: latMin, lon: lonMin },
-      ne: { lat: latMax, lon: lonMax },
+      ne: { lat: latMax, lon: lonMax }
     };
 
     return bounds;
@@ -434,9 +682,12 @@ export class CoveoGeoHashMap extends Component {
     var is_even = true;
     var BITS = [16, 8, 4, 2, 1];
     var BASE32 = "0123456789bcdefghjkmnpqrstuvwxyz";
-    var lat = []; var lon = [];
-    lat[0] = -90.0; lat[1] = 90.0;
-    lon[0] = -180.0; lon[1] = 180.0;
+    var lat = [];
+    var lon = [];
+    lat[0] = -90.0;
+    lat[1] = 90.0;
+    lon[0] = -180.0;
+    lon[1] = 180.0;
 
     for (var i = 0; i < geohash.length; i++) {
       var c = geohash[i];
@@ -460,21 +711,30 @@ export class CoveoGeoHashMap extends Component {
   private createResultGroupMarker(result: any, max: number): IResultMarker {
     var marker = null;
     var rect = this.createGroupHash(result, max);
+    //wimif (rect == undefined) return undefined;
     marker = this.createGroupMarker(result);
+    //const rect=null;
     // This creates the marker with all the information to fill the result template that open in the map, in Google map this is called InfoWindow.
     const resultMarker: IResultMarker = {
-      marker, result, rect, isOpen: false, id: result.value,
+      marker,
+      result,
+      rect,
+      isOpen: false,
+      id: result.value
     };
+    if (result.numberOfResults == 1) {
+      this.attachGroupInfoWindowOnClick(resultMarker);
+    }
     // Add a click to the rectangle so it will zoom into the area
-    this.attachGroupInfoWindowOnClick(resultMarker);
+    //this.attachGroupInfoWindowOnClick(resultMarker);
     return resultMarker;
   }
 
   private createMarker(result: IQueryResult): google.maps.Marker {
     const marker = new google.maps.Marker({
       position: {
-        lat: result.raw.mylat2,
-        lng: result.raw.mylon2
+        lat: result.raw[this.options.latField],
+        lng: result.raw[this.options.lonField]
       },
       zIndex: 100
     });
@@ -488,9 +748,29 @@ export class CoveoGeoHashMap extends Component {
     var mylat = 0;
     var mylon = 0;
     var hash = result.value;
+
+    //Add a marker (only for the label)
+    var res = this.decodeGeoHash(hash);
+    const marker = new google.maps.Marker({
+      position: {
+        lat: res.latitude[2],
+        lng: res.longitude[2]
+      },
+      zIndex: 100
+    });
+
+    marker.setMap(this.googleMap);
+    this.allBounds.extend(marker.getPosition());
+
+    return marker;
+
+    /*
+    var mylat = 0;
+    var mylon = 0;
+    var hash = result.value;
     var fontsize = (this.precision / 2) + 10 + 'px';
     //Decode hash to lat lon
-    if (this.precision >= 6) {
+    if (this.precision >= minHashPrecision) {
       //Add a marker (only for the label)
       var res = this.decodeGeoHash(hash);
       const marker = new google.maps.Marker({
@@ -511,42 +791,43 @@ export class CoveoGeoHashMap extends Component {
 
       return marker;
     }
-    else return null;
+    else return null;*/
   }
-
 
   private createGroupHash(result: any, max: number): google.maps.Rectangle {
     var mylat = 0;
     var mylon = 0;
     var hash = result.value;
-    var percentage = (result.numberOfResults / max) + 0.1;
+    var percentage = result.numberOfResults / max + 0.1;
     //Decode hash to lat lon
     var res = this.hashBounds(hash);
-    const rect = new google.maps.Rectangle({
-      strokeColor: 'blue',
-      strokeOpacity: 0.2,
-      strokeWeight: 1,
-      clickable: true,
-      fillColor: '#FF0000',
-      fillOpacity: percentage,
-      map: this.googleMap,
-      bounds: {
-        north: res.ne.lat,
-        south: res.sw.lat,
-        east: res.ne.lon,
-        west: res.sw.lon
-      },
-      zIndex: 50
-    });
-    this.allBounds.extend(rect.getBounds().getNorthEast());
-    this.allBounds.extend(rect.getBounds().getSouthWest());
-
-    return rect;
+    if (res != undefined) {
+      const rect = new google.maps.Rectangle({
+        strokeColor: "blue",
+        strokeOpacity: 0.2,
+        strokeWeight: 1,
+        clickable: true,
+        fillColor: "#FF0000",
+        fillOpacity: percentage,
+        map: this.googleMap,
+        bounds: {
+          north: res.ne.lat,
+          south: res.sw.lat,
+          east: res.ne.lon,
+          west: res.sw.lon
+        },
+        zIndex: 50
+      });
+      this.allBounds.extend(rect.getBounds().getNorthEast());
+      this.allBounds.extend(rect.getBounds().getSouthWest());
+      rect.setMap(null);
+      return rect;
+    } else return undefined;
   }
 
   private attachInfoWindowOnClick(resultMarker: IResultMarker) {
     const { marker } = resultMarker;
-    marker.addListener('click', () => {
+    marker.addListener("click", () => {
       const { result, isOpen } = resultMarker;
       let { infoWindow } = resultMarker;
       if (!infoWindow) {
@@ -566,6 +847,7 @@ export class CoveoGeoHashMap extends Component {
 
           this.centerMapOnPoint(lat, lng);
           infoWindow.setContent(element);
+          infoWindow.setZIndex(9999);
           infoWindow.open(this.googleMap, marker);
           //Add idle listener
           this.addIdleListener(true, this);
@@ -582,18 +864,28 @@ export class CoveoGeoHashMap extends Component {
   private attachGroupInfoWindowOnClick(resultMarker: IResultMarker) {
     //We want to zoom in onto the rectangle
     const { rect } = resultMarker;
-    rect.addListener('click', () => {
-      this.googleMap.fitBounds(resultMarker.rect.getBounds());
-    });
+    if (rect !== undefined) {
+      rect.addListener("click", () => {
+        if (resultMarker.rect !== undefined) {
+          this.googleMap.fitBounds(resultMarker.rect.getBounds());
+        } else {
+          this.googleMap.setZoom(17);
+          this.googleMap.panTo(resultMarker.marker.getPosition());
+        }
+      });
+    }
   }
 
-
-  private instantiateTemplate(result: IQueryResult): Promise<HTMLElement> {
-    return this.options.template.instantiateToElement(result).then(element => {
-      Component.bindResultToElement(element, result);
-      return Initialization.automaticallyCreateComponentsInsideResult(element, result)
-        .initResult.then(() => element);
-    });
+  private async instantiateTemplate(
+    result: IQueryResult
+  ): Promise<HTMLElement> {
+    const element = await this.options.template.instantiateToElement(result);
+    Component.bindResultToElement(element as HTMLElement, result);
+    await Initialization.automaticallyCreateComponentsInsideResult(
+      element as HTMLElement,
+      result
+    ).initResult;
+    return element as HTMLElement;
   }
 
   private closeAllInfoWindows() {
@@ -607,6 +899,11 @@ export class CoveoGeoHashMap extends Component {
   }
 
   private clearResultMarkers() {
+    if (this.clusterMap) {
+      this.clusterMap.clearMarkers();
+      this.clusterMap.setMap(null);
+      this.clusterMap = null;
+    }
     Object.keys(this.resultMarkers)
       .map(key => this.resultMarkers[key])
       .forEach(marker => {
@@ -626,7 +923,7 @@ export class CoveoGeoHashMap extends Component {
    * they are easy to implement on a result list but we also wanted to keep track of what as clicked on them map
    */
   private sendClickEvent(resultMarker: IResultMarker) {
-    const customEventCause = { name: 'Click', type: 'document' };
+    const customEventCause = { name: "Click", type: "document" };
     const { marker, result } = resultMarker;
     const isRelevant = marker.getOpacity() != 1;
     const metadata = {
@@ -634,39 +931,48 @@ export class CoveoGeoHashMap extends Component {
       zip: result.raw.myzip,
       city: result.raw.dyaddress1city
     };
-    this.usageAnalytics.logClickEvent(customEventCause, metadata, result, this.element);
+    this.usageAnalytics.logClickEvent(
+      customEventCause,
+      metadata,
+      result,
+      this.element
+    );
   }
 
   private centerMapOnPoint(lat, lng) {
     const scale = Math.pow(2, this.googleMap.getZoom());
     const latLng = new google.maps.LatLng(lat, lng);
     const mapCenter = this.googleMap.getProjection().fromLatLngToPoint(latLng);
-    const pixelOffset = new google.maps.Point((0 / scale) || 0, (-200 / scale) || 0);
+    const pixelOffset = new google.maps.Point(
+      0 / scale || 0,
+      -200 / scale || 0
+    );
     const worldCoordinateNewCenter = new google.maps.Point(
       mapCenter.x - pixelOffset.x,
       mapCenter.y + pixelOffset.y
     );
-    const newCenter = this.googleMap.getProjection().fromPointToLatLng(worldCoordinateNewCenter);
+    const newCenter = this.googleMap
+      .getProjection()
+      .fromPointToLatLng(worldCoordinateNewCenter);
     this.googleMap.setCenter(newCenter);
   }
 
   public focusOnMarker(markerId: string) {
     Object.keys(this.resultMarkers)
       .filter(key => this.resultMarkers[key].id == markerId)
-      .forEach((key) => {
+      .forEach(key => {
         const { marker } = this.resultMarkers[key];
         const { lat, lng } = marker.getPosition().toJSON();
         //Remove listener, we do not want to update the map when repositioning
         google.maps.event.removeListener(this.idleListener);
         this.centerMapOnPoint(lat, lng);
-        google.maps.event.trigger(marker, 'click');
+        google.maps.event.trigger(marker, "click");
         marker.setAnimation(google.maps.Animation.DROP);
         //Add idle listener
         //this.addIdleListener(true, this);
       });
-    window.scroll({ top: 0, left: 0, behavior: 'smooth' });
+    window.scroll({ top: 0, left: 0, behavior: "smooth" });
   }
-
 }
 
 Initialization.registerAutoCreateComponent(CoveoGeoHashMap);

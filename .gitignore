@@ -1,4 +1,6 @@
 bin
+ressources
 node_modules
 .idea
 package-lock.json
+CoveoPush.log

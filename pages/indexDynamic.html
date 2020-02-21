@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, height=device-height">
     <title>Coveo Map</title>
    
-    <link rel="icon" type="image/png" href="https://labs.coveodemo.com/icons/coveo.png">
-
+    <link rel="icon" type="image/png" href="//labs.coveodemo.com/icons/coveo.png">
     <link rel="stylesheet" href="./css/CoveoFullSearch.css" />
     <!--<link rel="stylesheet" href="https://labs.coveodemo.com/demo/page.css"/>-->
     <link rel="stylesheet" href="./css/coveoextension.css" />
@@ -16,363 +15,17 @@
     <script src="js/coveo.googleMap.extension.js"></script>
     <script src="js/templates/templates.js"></script>
     <script src="markerclusterer.js"></script>
-    <style>
-      
-body.Business .header,
-body.Business .coveo-facet-header,
-body.Business .coveo-category-facet-header,
-body.Business .coveo-recommendation-header {
-  background-color: #AADAFF;
-}
 
-body.Business .header {
-  border-bottom: none;
-  box-shadow: 0 2px 0px 0 #257bab;
-}
-body.Business .header .CoveoTab,
-body.Business .home,
-body.Business #user-menu,
-body.Business .coveo-facet-header,
-body.Business .coveo-category-facet-header,
-body.Business .coveo-facet-header-title,
-body.Business .coveo-dynamic-facet-header-title,
-body.Business .coveo-recommendation-title,
-body.Business .coveo-facet-settings-more-svg {
-  border-color: #fff;
-}
-     
-body.Family .header,
-body.Family .coveo-facet-header,
-body.Family .coveo-category-facet-header,
-body.Family .coveo-recommendation-header {
-  background-color: #46dfa4;
-}
-
-body.Family .header {
-  border-bottom: none;
-  box-shadow: 0 2px 0px 0 #46dfa4;
-}
-body.Family .header .CoveoTab,
-body.Family .home,
-body.Family #user-menu,
-body.Family .coveo-facet-header,
-body.Family .coveo-category-facet-header,
-body.Family .coveo-facet-header-title,
-body.Family .coveo-dynamic-facet-header-title,
-body.Family .coveo-recommendation-title,
-body.Family .coveo-facet-settings-more-svg {
-  border-color: #fff;
-}
-.CoveoTriggers .coveo-trigger-notify {
-  padding: 5px;
-  -webkit-box-shadow: 0px 9px 14px 0px rgba(189,189,189,1);
-  -moz-box-shadow: 0px 9px 14px 0px rgba(189,189,189,1);
-  box-shadow: 0px 5px 5px 0px rgba(189,189,189,1);
-  border-radius: 4px;
-}
-        .coveo-breadcrumb-items {
-          padding-bottom: 1px; 
-      }
-      #current-user fieldset label, #current-user .dropdown {
-        padding-left: 5px;
-        background-size: 26px;
-    }
-    .CoveoSearchInterface * {
-        -webkit-box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        box-sizing: border-box;
-    }
-      .CoveoBreadcrumb {
-        padding: 5px 0;
-        border-bottom: none;
-    }
-      .CoveoGeoHashMap {
-        border-radius: 4px;
-        top: 2px;
-    margin-right: 5px;
-    box-shadow: 1px 3px 3px 0px lightgrey;
-      }
-        .CoveoMyDetailsAndRelated .RelatedTab {
-          display: inline-block;
-          padding: 3px 10px;
-          cursor: pointer;
-      }
-      .coveo-details {
-        border: thin solid #bcc3ca;
-    }
-      .RelatedTab.active {
-          opacity: 1;
-          border-bottom: 4px solid #004990;
-          color: #004990;
-      }
-      
-.RelatedTab.active {
-  opacity: 1;
-  border-bottom: 4px solid #004990;
-  color: #004990;
-}
-
-.RelatedTab:hover {
-  opacity: 1;
-  border-bottom: 4px solid #004990;
-  color: #004990;
-}
-
-.RelatedTab.active:hover {
-  background-color: #f7f8f9;
-}
-      .RelatedTab {
-          height: 34px;
-          /*width: 60px;*/
-          background-color: rgba(247, 248, 249, 0.6);
-          border-radius: 2px;
-          background-size: 22px;
-          background-repeat: no-repeat;
-          background-position: center;
-          margin-right: 5px;
-          border-bottom: 4px solid transparent;
-          opacity: 0.3;
-      }
-        .CoveoStarRating {
-          padding-top: 4px;
-      }
-      .CoveoFieldTable {
-        margin-bottom: 1px; 
-    }
-      .side .title {
-        font-family: Lato;
-        font-size: 24pt;
-        color: #009ddc;
-      }
-      .side .host {
-        display:inline-block;
-        color: gray;
-      }
-      .side .city, .side .state, .side .country {
-        display: inline-block;
-        padding-left: 15px;
-        color: gray;
-      }
-      .side .header_info {
-        font-size: 14pt;
-    font-weight: bold;
-      }
-      .side .info {
-        font-size: 11pt;
-      }
-
-      .myimage img, .image img{
-        box-shadow: 1px 3px 5px 0px gray;
-        width: 100%;
-      }
-        .myimage img {
-          border-radius: 2px;
-          max-height:250px;
-      }
-      .image img {
-        border-radius: 4px;
-        max-height:450px;
-    }
-      .image {
-        float: left;
-        padding: 5px;
-      }
-      .CoveoSearchbox {
-        box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
-      }
-      .CoveoLogoOverlay {
-        top: 1px;
-    }
-      .CoveoSearchInterface .coveo-facet-column {
-        margin-right: 5px;
-          min-width: 330px;
-          max-width: 350px;
-          padding-top: 50px;
-    }
-    .coveo-modal-container.coveo-quick-view .coveo-modal-body iframe {
-      height: 100%;
-      width: 100%;
-      position: relative;
-      border: none;
-      border-radius: 2px;
-      padding: 10px 0 0 10px;
-  }
-    .CoveoSearchInterface .coveo-facet-column {
-        min-width: 330px;
-    }
-    .result-float-right {
-      float: right;
-      text-align: right;
-      font-size: 12px;
-      position: relative;
-  }
-  .CoveoResultLink:hover, .CoveoResultLink:visited, a.CoveoResultLink:hover, a.CoveoResultLink:visited, .CoveoResult a.CoveoResultLink:hover, .CoveoResult a.CoveoResultLink:visited {
-    text-decoration: none;
-    color: #009ddc;
-}
-.CoveoResult a:link {
-  text-decoration: none;
-  font-family: Lato;
-  font-size: 20px;
-  color: #009ddc;
-}
-.CoveoResult a:visited {
-  text-decoration: none;
-  font-family: Lato;
-  font-size: 20px;
-  color: #009ddc;
-}
-  .related-content {
-    border: none;
-    border-radius: 2px;
-    background-color: white;
-    padding: 1px;
-    margin-top: 0px;
-}
-.CoveoFieldTable th {
-  padding: 10px 10px 0 1px;
-}
-.CoveoSearchInterface .coveo-results-column {
-  overflow: hidden;
-  padding: 1px 10px 10px 5px;
-}
-    .coveo-results-column .coveo-list-layout .coveo-result-frame.movie {
-      padding-left: 200px;
-      min-height: 278px;
-      background-size: 185px auto !important;
-  }
-  .coveo-results-column .coveo-list-layout .coveo-result-frame {
-      padding: 10px;
-      background: #ffffff;
-      border-radius: 4px;
-      background-repeat: no-repeat;
-  }
-  .coveo-results-column .coveo-list-layout.CoveoResult {
-    border: 1px solid rgba(0, 0, 0, 0.2);
-    border-radius: 4px;
-    margin-bottom: 15px;
-    
-    padding: 0;
-    background: linear-gradient(45deg, rgba(193, 193, 193, 0.35) 0%, transparent 100%);
-}
-.coveo-results-column .coveo-list-layout.CoveoResult:hover {
-  box-shadow: 2px 2px 3px 2px rgba(74, 100, 245, 0.2);
-}
-      .CoveoSearchInterface .coveo-search-section {
-        max-width: 801px;
-        margin: 54px auto 47px;
-        padding: 0 10px;
-      }
-       .coveo-result-frame.movie {
-          padding-left: 200px;
-          min-height: 278px;
-          background-size: 185px auto !important;
-      }
-      .coveo-result-frame {
-          padding: 10px;
-          background: #ffffff;
-          border-radius: 2px;
-          background-repeat: no-repeat;
-      }
-      .gm-style .gm-style-iw-c{
-        max-height: 337px !important;
-      }
-      .RelatedTab {
-        opacity: 0.6;
-        background-color: rgba(232, 237, 242, 0.6);
-      }
-      
-    .gm-style-iw-d .coveo-list-layout.CoveoResult {
-      border-bottom: none !important;
-      padding: 1px 0 1px 1px;
-  }
-  .coveo-active-category-facet-parent {
-    padding-left: 10px;
-}
-body .CoveoFacet, body .CoveoRecommendation, body .CoveoFacetRange, body .CoveoFacetSlider, body .CoveoHierarchicalFacet, body .CoveoCategoryFacet, body .CoveoDynamic, body .CoveoRecommendation, body .CoveoDynamicFacet, body .CoveoDynamicRange, body .CoveoDynamicSlider, body .CoveoHierarchicalFacet, body .CoveoCategoryFacet  {
-    border-radius: 4px;
-    background: #ffffff;
-    box-shadow: 0 4px 15px 0 rgba(0, 0, 0, 0.03), 0 0 4px 0 rgba(0, 0, 0, 0.1);
-}
-.coveo-card-layout.CoveoResult, .CoveoDynamicSlider, .CoveoDynamicRange, .CoveoSearchButtonveoFacet, .CoveoDynamic,.CoveoCategoryFacet  {
-  border: none;
-}
-.coveo-card-layout.CoveoResult, .CoveoFacetSlider, .CoveoFacetRange, .CoveoSearchButtonveoFacet, .CoveoFacet,.CoveoCategoryFacet  {
-  border: none;
-}
-.coveo-facet-header,.coveo-dynamic-facet-header, .coveo-recommendation-header, .coveo-category-facet-header {
-  border-top-left-radius: 4px;
-  border-top-right-radius: 4px;
-}
-body .coveo-facet-values, body .coveo-category-facet-values {
-  color: #004990;
-}
-.CoveoOmnibox, .magic-box-suggestions.magic-box-hasSuggestion {
-  box-shadow: none;
-  border: none;
-}
-
-#user-menu {
-  z-index: 3;
-  line-height: 54px;
-  left: 218px;
-  font-size: 15px;
-  display: inline-block;
-  height: 52px;
-  margin: 0;
-  padding: 0;
-  padding-right: 10px;
-  position: absolute;
-  cursor: pointer;
-}
-
-#user-menu > div {
-  display: inline-block;
-  cursor: pointer;
-}
-
-#user-menu fieldset {
-  display: none;
-  position: absolute;
-  right: -10px;
-  text-align: left;
-  z-index: 200;
-  background-color: white;
-  color: #555;
-}
-
-#user-menu fieldset label {
-  background-size: 26px;
-  display: block;
-  cursor: pointer;
-  height: 32px;
-  line-height: 32px;
-  padding: 0 15px;
-}
-
-#user-menu fieldset label:hover {
-  background-color: #e1e1e1;
-  border-radius: 3px;
-}
-#user-menu .coveo-my-toggle {
-  position: relative;
-}
-#user-menu div {
-  display: inline-block;
-  margin: 0 5px;
-}
-    </style>
     
     <script src="https://maps.googleapis.com/maps/api/js?libraries=geometry&key=AIzaSyCCm-i7I611b3HxtQOCt3NlMtl5-oFX9Oc" async defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-          const addRecommendationPadding =  "{\"padding\": \"trending\" }";
+            
             Coveo.SearchEndpoint.endpoints['default'] = new Coveo.SearchEndpoint({
                 restUri: 'https://platform.cloud.coveo.com/rest/search',
-                accessToken: 'xx3030617e-f7a8-467c-86d5-d700d9639730'
+                accessToken: 'xx3030617e-f7a8-467c-86d5-d700d9639730',
                 //accessToken: 'xx5b469bd4-25c6-4d8b-8216-511108abef4c',
             });
-            Coveo.SearchEndpoint.endpoints['default'].options.queryStringArguments.mlParameters = addRecommendationPadding;
         })
     </script>
     <script>
@@ -402,14 +55,6 @@ body .coveo-facet-values, body .coveo-category-facet-values {
         const usersMap = {
           Business: {
             sel: 'Business',
-            help:
-              ``,
-            booster:
-              `@uri`,
-            musicbooster: ` $qre(expression: '@mygenre=Rock @mytype=Music',modifier:'-500', isConstant:'true')`
-          },
-          Family: {
-            sel: 'Family',
             help:
               ``,
             booster:
@@ -541,11 +186,11 @@ body .coveo-facet-values, body .coveo-category-facet-values {
             Coveo.Cookie.set(COOKIE_KEY, value);
             this.setDropdownText(value);
       
-            this.dropdown.removeClass(['user-Individual', 'user-Business', 'user-Family']);
-            $('body').removeClass(['Individual', 'Business','Family']);
+            this.dropdown.removeClass(['user-Individual', 'user-Business']);
+            $('body').removeClass(['Individual', 'Business']);
             $('body').addClass(`${value}`);
             this.dropdown.addClass(`user-${value}`);
-            if (doReload){
+            /*if (doReload){
               if (value=='Individual'){
                 //Move Price Up
                 $('.CoveoFacetSlider').insertBefore($('.CoveoCategoryFacet[data-title="Type"]'));
@@ -560,7 +205,7 @@ body .coveo-facet-values, body .coveo-category-facet-values {
                 $('.CoveoFacet[data-title="Amenities"]').prev().insertAfter($('.CoveoFacet[data-title="Amenities"]'));
 
               }
-          }
+          }*/
             if (doReload) {
               this.active = true;
               this.toggle();
@@ -880,7 +525,7 @@ body .coveo-facet-values, body .coveo-category-facet-values {
        class MyDetailsAndRelated extends Coveo.Component {
          constructor(element, options, bindings, result) {
            super(element, MyDetailsAndRelated.ID);
-           this.options = Coveo.ComponentOptions.initComponentOptions(element, MyDetailsAndRelated, options);
+     
            let $el = $(element);
            this.$parent = $el.parent();
      
@@ -903,7 +548,19 @@ body .coveo-facet-values, body .coveo-category-facet-values {
      
              //Fill the queries to check for results later on
              queries.push({ result: result, dataset: el.dataset, tab: tabName, parent: this.$parent });
-             
+             //Special for the Playing
+             if (tabName === 'Playing') {
+               //check if the releasedate is >3 months < today
+               var resultdate = new Date(Date.parse(result.raw['date']));
+               var monthsback = new Date();
+               var today = new Date();
+               monthsback.setMonth(monthsback.getMonth() - 5);
+               if (resultdate > monthsback && resultdate < today) {
+                 skip = false;
+               } else {
+                 skip = true;
+               }
+             }
              if (!skip) {
                //Check if there are results on the tab
                $tabs.push($(`<div class="RelatedTab" data-name="${tabName}" title="${tabName}">${tabName}</div>`));
@@ -973,7 +630,7 @@ body .coveo-facet-values, body .coveo-category-facet-values {
          checkQuery(fields, query, partial, dataset) {
            let queryBuilder = new Coveo.QueryBuilder();
            queryBuilder.locale = GetBindings().queryController.lastQueryBuilder.locale;
-           queryBuilder.pipeline = this.options.pipeline;
+           queryBuilder.pipeline = 'default';
            queryBuilder.searchHub = 'CheckTabs';
            queryBuilder.enableDebug = false;
            queryBuilder.enableQuerySyntax = true;
@@ -1061,9 +718,6 @@ body .coveo-facet-values, body .coveo-category-facet-values {
        }
      
        MyDetailsAndRelated.ID = 'MyDetailsAndRelated';
-       MyDetailsAndRelated.options = {
-        pipeline: Coveo.ComponentOptions.buildLocalizedStringOption()
-       };
        Coveo.Initialization.registerAutoCreateComponent(MyDetailsAndRelated);
      
        /* globals Coveo */
@@ -1123,7 +777,78 @@ body .coveo-facet-values, body .coveo-category-facet-values {
        MyImageSmall.ID = 'MyImageSmall';
        Coveo.Initialization.registerAutoCreateComponent(MyImageSmall);
      
-       
+       /* globals Coveo */
+     
+       const COOKIE_KEY$1 = 'cur_help';
+     
+       const getHelpFlagFromCookie = () => {
+         return Coveo.Cookie.get(COOKIE_KEY$1) || 'false';
+       };
+     
+       /**
+        * Image result
+        * Shows (external) image for Result
+        */
+       class MyHelpToggle extends Coveo.Component {
+         constructor(element) {
+           super(element, MyHelpToggle.ID);
+           this.isActive = getHelpFlagFromCookie() === 'true';
+           this.userHelp = '';
+     
+           Coveo.load('Checkbox').then(Checkbox => {
+             const checkbox = new Checkbox(() => this.toggle(), 'Tooltips');
+             if (this.isActive) {
+               checkbox.select(false);
+               this._setupMouseEvents();
+             }
+             this.element.appendChild(checkbox.build());
+           });
+         }
+     
+         _setupMouseEvents() {
+           if (!this._eventsAdded) {
+             // make sure we set them up once only.
+             Coveo.$('[data-help]')
+               .on('mouseover', e => {
+                 if (this.isActive) {
+                   let relatedElementId = $(e.currentTarget).data('help');
+                   Coveo.$(relatedElementId).show();
+                 }
+               })
+               .on('mouseout', e => {
+                 let relatedElementId = $(e.currentTarget).data('help');
+                 Coveo.$(relatedElementId).hide();
+               });
+             this._eventsAdded = true;
+           }
+         }
+     
+         toggle() {
+           this.isActive = !this.isActive;
+           Coveo.Cookie.set(COOKIE_KEY$1, this.isActive);
+     
+           Coveo.$('#debugHelp').toggle(this.isActive);
+     
+           if (this.isActive) {
+             this._setupMouseEvents();
+           }
+         }
+       }
+     
+       MyHelpToggle.ID = 'MyHelpToggle';
+       Coveo.Initialization.registerAutoCreateComponent(MyHelpToggle);
+     
+       // Show help
+       const onMouseOverHelp = elementId => {
+         if (getHelpFlagFromCookie() === 'true') {
+           Coveo.$(elementId).show();
+         }
+       };
+     
+       // Do not show help
+       const onMouseOutHelp = elementId => {
+         Coveo.$(elementId).hide();
+       };
      
        /* globals Coveo, musicBoost */
      
@@ -1266,52 +991,27 @@ body .coveo-facet-values, body .coveo-category-facet-values {
              }
            });
          }
-         
-         preventEventPropagation() {
-          this.preventEventPropagationOn(Coveo.QueryEvents);
-          this.preventEventPropagationOn(Coveo.OmniboxEvents);
-          this.preventEventPropagationOn(Coveo.ResultListEvents);
-          this.preventEventPropagationOn(Coveo.SettingsEvents);
-          this.preventEventPropagationOn(Coveo.PreferencesPanelEvents);
-          this.preventEventPropagationOn(Coveo.AnalyticsEvents);
-          this.preventEventPropagationOn(Coveo.BreadcrumbEvents);
-          this.preventEventPropagationOn(Coveo.QuickviewEvents);
-          this.preventEventPropagationOn(Coveo.InitializationEvents);
-      }
-      preventEventPropagationOn(eventType, eventName) {
-          if (eventName === void 0) { eventName = function (event) {
-              return event;
-          }; }
-          for (var event_1 in eventType) {
-              Coveo.$$(this.root).on(eventName(event_1), function (e) { return e.stopPropagation(); });
-          }
-      }
+     
          showMoreResults() {
            let _this = this;
            this.updateElementVisibility();
-           this.preventEventPropagation();
            this.showingMoreResults = true;
-           
            if (this.options.keyCheck) {
              let queryBuilder = new Coveo.QueryBuilder();
              //Copy settings from last Query Builder
              let binding = GetBindings();
              queryBuilder.locale = binding.queryController.lastQueryBuilder.locale;
-             queryBuilder.pipeline = this.options.pipeline;//'default';//binding.queryController.lastQueryBuilder.pipeline;
+             queryBuilder.pipeline = 'default';//binding.queryController.lastQueryBuilder.pipeline;
              queryBuilder.searchHub = binding.queryController.lastQueryBuilder.searchHub;
              queryBuilder.sortCriteria = binding.queryController.lastQueryBuilder.sortCriteria;
              queryBuilder.enableDebug = binding.queryController.lastQueryBuilder.enableDebug;
              queryBuilder.enableQuerySyntax = true;
              queryBuilder.enableDuplicateFiltering = true;
              queryBuilder.excerptLength = binding.queryController.lastQueryBuilder.excerptLength;
-             queryBuilder.addContext({
-              userRole: window.CURRENT_USER_PROFILE.sel,
-              userrole: window.CURRENT_USER_PROFILE.sel
-            });
+     
              queryBuilder.timezone = binding.queryController.lastQueryBuilder.timezone;
              queryBuilder.numberOfResults = this.options.numberOfResults;
              let newquery = this.options.query;
-             let dq = this.options.dq;
              let a = this.options.fields.split(';');
              let i = 0;
              this.expandedComment = this.options.expandedComment;
@@ -1338,9 +1038,6 @@ body .coveo-facet-values, body .coveo-category-facet-values {
                }
                //In Elastic the : means a field query
                newquery = newquery.replace(reFieldName, fieldExprES);
-               if (this.options.dq){
-                 dq= dq.replace(reFieldName, fieldExprES);
-               }
                this.expandedQuery = this.expandedQuery.replace(reFieldName, fieldExprES);
                this.expandedComment = this.expandedComment.replace(reFieldName, fieldExpr);
              }
@@ -1357,9 +1054,10 @@ body .coveo-facet-values, body .coveo-category-facet-values {
                newquery = newquery.replace('[QUERY]', this.result.state['q']);
                this.expandedQuery = this.expandedQuery.replace('[QUERY]', this.result.state['q']);
              }
-             if (this.options.dq){
-              queryBuilder.disjunctionExpression.add(dq);
-             }
+             //ugly but for now fine
+             newquery = newquery.replace('movie script - Screenplays for You', '');
+             this.expandedQuery = this.expandedQuery.replace('movie script - Screenplays for You', '');
+     
              if (this.options.extraBoost && window.musicBoost) {
                // TODO - Move musicBoost in a Global User object
                queryBuilder.expression.add(newquery + musicBoost);
@@ -1368,7 +1066,6 @@ body .coveo-facet-values, body .coveo-category-facet-values {
                queryBuilder.expression.add(newquery);
                _this.expandquery = this.expandedQuery || newquery;
              }
-             
              if (this.options.partialMatch) {
                queryBuilder.enablePartialMatch = true;
                queryBuilder.partialMatchKeywords = 4;
@@ -1389,7 +1086,7 @@ body .coveo-facet-values, body .coveo-category-facet-values {
          }
      
          expandQuery() {
-           Coveo.$('.CoveoFacet').coveo('reset');
+           Coveo.$('.CoveoDynamicFacet').coveo('reset');
            Coveo.$('#search').coveo('state', 'hd', this.expandedComment);
            Coveo.$('#search').coveo('state', 'hq', this.expandquery);
            Coveo.$('#search').coveo('state', 'q', '');
@@ -1449,16 +1146,6 @@ body .coveo-facet-values, body .coveo-category-facet-values {
      
              this.showExpand.appendTo(this.results);
            }
-          /* debugger;
-           const container = document.querySelector(`.coveo-folding-results2`);
-      container.innerHTML = 'Wim';
-           const ResultList = Coveo.get(document.querySelector('.CoveoResultList'));// as Coveo.ResultList;
-      ResultList.buildResults(results).then(async (elements) => {
-        for (let element of elements) {
-          container.append(element);
-        }
-      });*/
-      //debugger;
            Coveo._.each(results, function(result) {
              result.raw.collection = result.raw.collection || 'default';
              _this.renderChildResult(result);
@@ -1478,11 +1165,7 @@ body .coveo-facet-values, body .coveo-category-facet-values {
              }
            };
      
-           let containerOrPromise = this.options.resultTemplate.instantiateToElement(childResult,{
-            wrapInDiv: true,
-            checkCondition: true,
-            currentLayout: 'list',
-            responsiveComponents: binding.searchInterface.responsiveComponents}); // Promise on JSUI2 ?
+           let containerOrPromise = this.options.resultTemplate.instantiateToElement(childResult); // Promise on JSUI2 ?
            if (containerOrPromise && containerOrPromise.then) {
              containerOrPromise.then(container => {
                addToContainer(container, childResult);
@@ -1493,13 +1176,10 @@ body .coveo-facet-values, body .coveo-category-facet-values {
          }
      
          autoCreateComponentsInsideResult(element, result) {
-           //return Coveo.Initialization.automaticallyCreateComponentsInsideResult(element, result);
            Coveo.Assert.exists(element);
            let initOptions = GetBindings().searchInterface.options;
-           initOptions = _.extend({}, initOptions, { closeModalBox: false });
            let initParameters = { options: initOptions, bindings: GetBindings(), result: result };
-           //Coveo.CoveoJQuery.automaticallyCreateComponentsInside(element, initParameters, [MyResultsRelated.ID]);
-           Coveo.Initialization.automaticallyCreateComponentsInside(element, initParameters, [MyResultsRelated.ID]);
+           Coveo.CoveoJQuery.automaticallyCreateComponentsInside(element, initParameters);
          }
        }
      
@@ -1512,8 +1192,6 @@ body .coveo-facet-values, body .coveo-category-facet-values {
          }),
          name: Coveo.ComponentOptions.buildLocalizedStringOption(),
          label: Coveo.ComponentOptions.buildLocalizedStringOption(),
-         pipeline: Coveo.ComponentOptions.buildLocalizedStringOption(),
-         dq: Coveo.ComponentOptions.buildLocalizedStringOption(),
          normalCaption: Coveo.ComponentOptions.buildLocalizedStringOption(),
          titleCaption: Coveo.ComponentOptions.buildLocalizedStringOption(),
          expandedComment: Coveo.ComponentOptions.buildLocalizedStringOption(),
@@ -1556,35 +1234,25 @@ body .coveo-facet-values, body .coveo-category-facet-values {
 
 <body id="search" class='CoveoSearchInterface' data-pipeline='Search' data-enable-history="true" data-auto-trigger-query="true" data-debug=true data-expression="" data-results-per-page='10'>
     <img class="CoveoLogoOverlay" src="https://www.kayee.nl/wp-content/uploads/2016/05/coveo-logo.png" />
-    <div class="CoveoPromotedResultsBadge"
-      data-show-badge-for-recommended-results="true"
-      data-caption-for-recommended="Recommended by Coveo ML"
-      data-caption-for-featured-results="Featured Result"
-      data-show-badge-for-featured-results="true"
-      data-color-for-featured-results="orange"
-      data-color-for-recommended-results="green"></div>
     <div class='CoveoAnalytics'></div>
-      <div id="user-menu">
-        <div id="current-user">
-          <div class="CoveoMyUserToggle"></div>
-        </div>
-      </div>
+      
     <div class="coveo-facet-column">
         <div class="CoveoFacetSlider" data-title="Price Range" data-graph="true" data-start=1 data-end=400 data-graph-steps=60  data-range-slider='true' data-field="@myprice" data-date-field="false" ></div>
-        
-    <div class="CoveoCategoryFacet" data-title="Type" data-field="@myroomprop"></div>
-    <div class="CoveoFacet" data-title="City" data-field="@mycity" ></div>
-    <div class="CoveoFacet" data-title="Amenities" data-field="@myamenities" ></div>
-    <div class="CoveoFacet" data-title="Bed type" data-field="@mybedtype" ></div>
-    <div class="CoveoFacet" data-title="Used By Traveller" data-field="@myratingtype" ></div>
-    <div class="CoveoFacet" data-title="Used By Age" data-field="@myratingage" ></div>
-    <div class="CoveoFacet" data-title="Used By Rating" data-field="@myrating" ></div>
-    <div class="CoveoFacet" data-title="No of Persons" data-field="@mynopersons" ></div>
-    <div class="CoveoFacet" data-title="No of Bedrooms" data-field="@mybedroomsf" ></div>
-    <div class="CoveoFacet" data-title="No of Beds" data-field="@mybedsf" ></div>
-    <div class="CoveoFacet" data-title="Country" data-field="@mycountry" data-injection-depth=15000></div>
-    <div class="CoveoFacet" data-title="Neighbourhood" data-field="@myneighbourhood" data-computed-field="@myprice" data-computed-field-operation="average"
+        <div class="CoveoDynamicFacetManager" data-enable-reorder="false">
+        <div class="CoveoDynamicHierarchicalFacet" data-title="Type" data-field="@myroomprop"></div>    
+    <div class="CoveoDynamicFacet" data-title="City" data-field="@mycity" ></div>
+    <div class="CoveoDynamicFacet" data-title="Amenities" data-field="@myamenities" ></div>
+    <div class="CoveoDynamicFacet" data-title="Bed type" data-field="@mybedtype" ></div>
+    <div class="CoveoDynamicFacet" data-title="Used By Traveller" data-field="@myratingtype" ></div>
+    <div class="CoveoDynamicFacet" data-title="Used By Age" data-field="@myratingage" ></div>
+    <div class="CoveoDynamicFacet" data-title="Used By Rating" data-field="@myrating" ></div>
+    <div class="CoveoDynamicFacet" data-title="No of Persons" data-field="@mynopersons" ></div>
+    <div class="CoveoDynamicFacet" data-title="No of Bedrooms" data-field="@mybedroomsf" ></div>
+    <div class="CoveoDynamicFacet" data-title="No of Beds" data-field="@mybedsf" ></div>
+    <div class="CoveoDynamicFacet" data-title="Country" data-field="@mycountry" data-injection-depth=15000></div>
+    <div class="CoveoDynamicFacet" data-title="Neighbourhood" data-field="@myneighbourhood" data-computed-field="@myprice" data-computed-field-operation="average"
     data-computed-field-format="c0" data-computed-field-caption="Avg Price"></div>
+        </div>
        
     </div>
     <div class="CoveoMapWraper">
@@ -1632,6 +1300,7 @@ body .coveo-facet-values, body .coveo-category-facet-values {
                       <div style="display: inline-block; width: 80%;">
                       <div class="result-float-right role-based-text-color">
                         <span class="CoveoFieldValue" data-field="@date" data-helper="date"></span>
+                        <span class="CoveoMySentiment"></span>
                         <div class="CoveoQuickview" data-template-id="HouseQuickview"></div>
                         <div class="CoveoFieldValue" data-field="@myvotecount" data-text-caption="★" style="display:block"></div>
                
@@ -1690,15 +1359,30 @@ body .coveo-facet-values, body .coveo-category-facet-values {
                       <div style="display: inline-block; width: 80%;">
                       <div class="result-float-right role-based-text-color">
                         <span class="CoveoFieldValue" data-field="@date" data-helper="date"></span>
+                        <span class="CoveoMySentiment"></span>
                         <div class="CoveoQuickview"></div>
+                        <div class="CoveoFieldValue" data-field="@myvotecount" data-text-caption="★" style="display:block"></div>
+               
+                        <div class="CoveoFieldValue" data-field="@myprice" data-text-caption="Price:" style="display:block"></div>
                         
+                        <div class="CoveoMyFeatured"></div>
+                        <div class="CoveoMyART"></div>
                       </div>
                       <a class="CoveoResultLink"></a>
           
                       <div class="CoveoExcerpt"></div>
           
                       
+                        <table class="CoveoFieldTable coveo-details related-content Details query-done" data-allow-minimization="false">
+                          <tr data-field="@myproptype" data-caption="Property type"></tr>
+                          <tr data-field="@myroomtype" data-caption="Room type"></tr>
+                          <tr data-field="@mybedtype" data-caption="Bed Type"></tr>
+                          <tr data-field="@myamenities" data-caption="Amenities" data-split-values="true"></tr>
+                         
+                        </table>
+                        <div class="CoveoStarRating" data-rating-field="@myvotecount" data-rating-scale=100></div>
                       </div>
+                    </div>
           
                   </script>
                   <script id="HouseQuickview" class="result-template" type="text/html" >
@@ -1706,7 +1390,7 @@ body .coveo-facet-values, body .coveo-category-facet-values {
                       <div class="coveo-quick-view-header">
                       </div>
                       <div class="CoveoQuickviewDocument" style="height:60%"></div>
-                      <div class="CoveoMyDetailsAndRelated" data-pipeline='default' style="padding-top:15px;padding-left: 15px;">
+                      <div class="CoveoMyDetailsAndRelated" style="padding-top:15px;padding-left: 15px;">
                           <table class="CoveoFieldTable coveo-details related-content Details query-done" data-allow-minimization="false">
                               <tr data-field="@myproptype" data-caption="Property type"></tr>
                               <tr data-field="@myroomtype" data-caption="Room type"></tr>
@@ -1718,23 +1402,41 @@ body .coveo-facet-values, body .coveo-category-facet-values {
                         <div class="CoveoMyResultsRelated Attractions coveo-details" data-result-template-id="Default" data-name="Attractions" data-normal-caption="Attractions"
                           data-title-caption="Related attractions (based upon city)" data-expanded-caption="Hide Related Attractions" data-no-results-caption="No related attractions found"
                           data-query='@mycity="[FIELD1]" @source==Attractions @myimage' data-key-check='@source;Attractions' data-expanded-comment="Show Attractions where city is '[FIELD1]'"
-                          data-extra-boost=false data-fields="mycity" data-partial-match=false data-number-Of-Results=5 data-help='' data-pipeline='default'>
+                          data-extra-boost=false data-fields="mycity" data-partial-match=false data-number-Of-Results=5 data-help=''>
                         </div>
             
                         <div class="CoveoMyResultsRelated News coveo-details" data-result-template-id="Default" data-name="News" data-normal-caption="News" data-title-caption="Related news (based upon country)"
                           data-expanded-caption="Hide Related News" data-no-results-caption="No related news found" data-query='@mycountry="[FIELD1]" @documenttype==Article @myimage'
                           data-key-check='@documenttype;Article' data-expanded-comment="Show News with country: [FIELD1] "
                           data-extra-boost=false data-fields="mycountry" data-filter-field="" data-partial-match=false
-                          data-number-Of-Results=5 data-help=''  data-pipeline='default'>
+                          data-number-Of-Results=5 data-help=''>
                         </div>
                          <!-- coveo-results-column -->
 
-                         <div class="CoveoMyResultsRelated Rec coveo-details" data-result-template-id="MovieTemplate" data-name="Recommended" data-normal-caption="Recommended" data-title-caption="Recommended Houses"
-                         data-expanded-caption="Hide Recommendations" data-no-results-caption="No recommendations found" data-query='(@mycity="[FIELD1]" NOT @uri="[FIELD2]" @mytype==Houses) '
-                         data-key-check='@mtype;Houses' data-expanded-comment="Show Houses of city: [FIELD1] "
-                         data-extra-boost=false data-fields="mycity;uri" data-filter-field="" data-partial-match=false data-dq='@mytype==Houses NOT @uri="[FIELD2]"'
-                         data-number-Of-Results=5 data-help=''  data-pipeline='Recommendations'>
-                       </div>
+                        <div id="Recommendations" class="coveo-recommendation-column" style="max-width:330px;">
+                          <div id="MyRecommendations" class="CoveoRecommendation" style="display:none;" data-responsive-breakpoint="1400" data-pipeline="Recommendations"
+                            data-main-search-interface="#search" data-results-per-page="5" data-hide-if-no-results="true" data-enable-duplicate-filtering='true'
+                            data-enable-responsive-mode="true">
+
+                            <div class="CoveoAnalytics" data></div>
+                            <div class="coveo-recommendation-header">
+                              <div class="coveo-recommendation-title">Music</div>
+                            </div>
+                            <div class="coveo-recommendation-body">
+                              <div class="CoveoResultList" data-layout="list" style="background-color: #ffffff">
+                                <script id="RecHouse" class="result-template" type="text/html" data-layout="list">
+                                  <div class="coveo-result-frame">
+                                    <div class="CoveoMyImageSmall" style="margin-right:5px;display:inline-block"></div>
+                                    <div style="display:inline-block;width: 210px;vertical-align: top;">
+                                      <a class="CoveoResultLink RecResult"></a>
+                                    </div>
+                                  </div>
+                                </script>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- coveo-recommendation-column -->
                     </div>
                 </script>
             </div>

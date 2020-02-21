@@ -30,7 +30,7 @@
   "devDependencies": {
     "@types/jasmine": "^2.6.0",
     "colors": "^1.1.2",
-    "coveo-search-ui": "^2.4382.8",
+    "coveo-search-ui": "^2.7968.10",
     "coveo-search-ui-tests": "0.0.5",
     "express": "^4.16.3",
     "istanbul-instrumenter-loader": "^3.0.0",
