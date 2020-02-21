@@ -43,8 +43,12 @@ def encode(latitude, longitude, precision=12):
 #lat = 52.3777796784077
 #lon = 4.90516680992096
 # Get Lat/Lon
-lat = float(strip(document.get_meta_data_value('mylat2')[0]))
-lon = float(strip(document.get_meta_data_value('mylon2')[0]))
+lat = float(document.get_meta_data_value('mylat')[0].strip())
+lon = float(document.get_meta_data_value('mylon')[0].strip())
+#mylat = str(lat)
+#mylon = str(lon)
+#log(mylat)
+#log(mylon)
 
 # Calculate Hashes
 hash2 = encode(lat, lon, precision=2)
