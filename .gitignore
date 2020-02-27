@@ -1,6 +1,11 @@
 bin
-ressources
+ressources/Data/RefData
+ressources/Data/output
+ressources/Data/images
 node_modules
 .idea
 package-lock.json
 CoveoPush.log
+output.7z
+ressources/Data/cities.txt
+ressources/Data/worldcitiespop.txt
