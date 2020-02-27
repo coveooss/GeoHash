@@ -1,0 +1,221 @@
+{
+  "displayName": "ForAdmin",
+  "privileges": [
+    {
+      "type": "VIEW",
+      "targetDomain": "ANALYTICS_DATA",
+      "targetId": "*",
+      "owner": "USAGE_ANALYTICS"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "SEARCH_PAGES",
+      "targetId": "*",
+      "owner": "SEARCH_API"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "INDEXING_PIPELINE_EXTENSION",
+      "targetId": "*",
+      "owner": "PLATFORM"
+    },
+    {
+      "type": "EDIT",
+      "targetDomain": "MODELS",
+      "targetId": "*",
+      "owner": "COVEO_ML"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "NAMED_FILTERS",
+      "targetId": "*",
+      "owner": "USAGE_ANALYTICS"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "MODELS",
+      "targetId": "*",
+      "owner": "COVEO_ML"
+    },
+    {
+      "type": "CREATE",
+      "targetDomain": "MODELS",
+      "targetId": "*",
+      "owner": "COVEO_ML"
+    },
+    {
+      "type": "CREATE",
+      "targetDomain": "QUERY_PIPELINE",
+      "targetId": "*",
+      "owner": "SEARCH_API"
+    },
+    {
+      "targetDomain": "VIEW_ALL_CONTENT",
+      "targetId": "*",
+      "owner": "SEARCH_API"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "ACTIVITIES",
+      "targetId": "*",
+      "owner": "PLATFORM"
+    },
+    {
+      "type": "EDIT",
+      "targetDomain": "QUERY_PIPELINE",
+      "targetId": "*",
+      "owner": "SEARCH_API"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "SUBSCRIPTION",
+      "targetId": "*",
+      "owner": "PLATFORM"
+    },
+    {
+      "type": "EDIT",
+      "targetDomain": "METRIC_ALERTS",
+      "targetId": "*",
+      "owner": "USAGE_ANALYTICS"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "INCOHERENT_EVENTS",
+      "targetId": "*",
+      "owner": "USAGE_ANALYTICS"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "PERMISSION_FILTERS",
+      "targetId": "*",
+      "owner": "USAGE_ANALYTICS"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "SECURITY_PROVIDER",
+      "targetId": "*",
+      "owner": "PLATFORM"
+    },
+    {
+      "type": "CREATE",
+      "targetDomain": "FIELD",
+      "targetId": "*",
+      "owner": "PLATFORM"
+    },
+    {
+      "type": "EDIT",
+      "targetDomain": "FIELD",
+      "targetId": "*",
+      "owner": "PLATFORM"
+    },
+    {
+      "targetDomain": "ADMINISTRATE",
+      "targetId": "*",
+      "owner": "USAGE_ANALYTICS"
+    },
+    {
+      "targetDomain": "AUTHENTICATION_EDITOR",
+      "targetId": "*",
+      "owner": "SEARCH_API"
+    },
+    {
+      "type": "EDIT",
+      "targetDomain": "SOURCE",
+      "targetId": "*",
+      "owner": "PLATFORM"
+    },
+    {
+      "type": "CREATE",
+      "targetDomain": "SOURCE",
+      "targetId": "*",
+      "owner": "PLATFORM"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "ON_PREMISE_ADMINISTRATION",
+      "targetId": "*",
+      "owner": "PLATFORM"
+    },
+    {
+      "targetDomain": "EXECUTE_QUERY",
+      "targetId": "*",
+      "owner": "SEARCH_API"
+    },
+    {
+      "targetDomain": "IMPERSONATE",
+      "targetId": "*",
+      "owner": "SEARCH_API"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "SALESFORCE_AUTHENTICATION",
+      "targetId": "*",
+      "owner": "SEARCH_API"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "CUSTOM_DIMENSIONS",
+      "targetId": "*",
+      "owner": "USAGE_ANALYTICS"
+    },
+    {
+      "targetDomain": "QUERY_SUGGEST",
+      "targetId": "*",
+      "owner": "USAGE_ANALYTICS"
+    },
+    {
+      "type": "EDIT",
+      "targetDomain": "ANALYTICS_DATA",
+      "targetId": "*",
+      "owner": "USAGE_ANALYTICS"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "METRIC_ALERTS",
+      "targetId": "*",
+      "owner": "USAGE_ANALYTICS"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "EXPORTS",
+      "targetId": "*",
+      "owner": "USAGE_ANALYTICS"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "ORGANIZATION",
+      "targetId": "*",
+      "owner": "PLATFORM"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "QUERY_PIPELINE",
+      "targetId": "*",
+      "owner": "SEARCH_API"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "GROUP",
+      "targetId": "*",
+      "owner": "PLATFORM"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "REPORTS",
+      "targetId": "*",
+      "owner": "USAGE_ANALYTICS"
+    },
+    {
+      "targetDomain": "IMPERSONATE",
+      "targetId": "*",
+      "owner": "USAGE_ANALYTICS"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "SECURITY_CACHE",
+      "targetId": "*",
+      "owner": "PLATFORM"
+    }
+  ],
+  "enabled": true
+}

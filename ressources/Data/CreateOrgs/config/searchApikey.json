@@ -1,0 +1,45 @@
+{
+  "displayName": "For DDOS Team",
+  "description": "",
+  "privileges": [
+    {
+      "type": "VIEW",
+      "targetDomain": "ANALYTICS_DATA",
+      "targetId": "*",
+      "owner": "USAGE_ANALYTICS"
+    },
+    {
+      "targetDomain": "EXECUTE_QUERY",
+      "targetId": "*",
+      "owner": "SEARCH_API"
+    },
+    {
+      "targetDomain": "IMPERSONATE",
+      "targetId": "*",
+      "owner": "SEARCH_API"
+    },
+    {
+      "targetDomain": "QUERY_SUGGEST",
+      "targetId": "*",
+      "owner": "USAGE_ANALYTICS"
+    },
+    {
+      "type": "EDIT",
+      "targetDomain": "ANALYTICS_DATA",
+      "targetId": "*",
+      "owner": "USAGE_ANALYTICS"
+    },
+    {
+      "type": "VIEW",
+      "targetDomain": "ORGANIZATION",
+      "targetId": "*",
+      "owner": "PLATFORM"
+    },
+    {
+      "targetDomain": "IMPERSONATE",
+      "targetId": "*",
+      "owner": "USAGE_ANALYTICS"
+    }
+  ],
+  "enabled": true
+}

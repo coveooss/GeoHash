@@ -1,0 +1,48 @@
+[{
+  "sourceType": "PUSH",
+  "name": "Movies1",
+  "owner": "wnijmeijer@coveo.com-google",
+  "sourceVisibility": "SHARED",
+  "pushEnabled": true,
+  "onPremisesEnabled": false,
+  "logicalIndex": "default",
+  "urlFilters": [
+    {
+      "filter": "*",
+      "includeFilter": true,
+      "filterType": "WILDCARD"
+    }
+  ]
+},
+{
+  "sourceType": "PUSH",
+  "name": "Movies2",
+  "owner": "wnijmeijer@coveo.com-google",
+  "sourceVisibility": "SHARED",
+  "pushEnabled": true,
+  "onPremisesEnabled": false,
+  "logicalIndex": "default",
+  "urlFilters": [
+    {
+      "filter": "*",
+      "includeFilter": true,
+      "filterType": "WILDCARD"
+    }
+  ]
+},
+{
+  "sourceType": "PUSH",
+  "name": "Movies3",
+  "owner": "wnijmeijer@coveo.com-google",
+  "sourceVisibility": "SHARED",
+  "pushEnabled": true,
+  "onPremisesEnabled": false,
+  "logicalIndex": "default",
+  "urlFilters": [
+    {
+      "filter": "*",
+      "includeFilter": true,
+      "filterType": "WILDCARD"
+    }
+  ]
+}]
