@@ -36,7 +36,8 @@
         const toggleFilters = () => {
           const widgetBtn =  document.querySelector('.widget-filters');
           widgetBtn.addEventListener('click', function(e) {
-            document.querySelector('.facet-container').classList.toggle('active-facets');
+            document.querySelector('.main-container').classList.toggle('active-facets');
+            
           });
         }
         
@@ -1219,6 +1220,7 @@
   </head>
 
 <body id="search" class='CoveoSearchInterface' data-pipeline='Search' data-enable-history="true" data-auto-trigger-query="true" data-debug=true data-expression="" data-results-per-page='10'>
+  
   <header class='header'>
     <div class='container'>
       <div class='header__left'>
@@ -1234,17 +1236,19 @@
         <div class="CoveoTriggers"></div>
       </div>
       <div>
-      <div id="user-menu">
-        <div id="current-user">
-          <div class="CoveoMyUserToggle"></div>
+        <div id="user-menu" class='show-md__above user-menu'>
+          <div id="current-user">
+            <div class="CoveoMyUserToggle"></div>
+          </div>
+          <i class="ionicons ion-chevron-down"></i>
         </div>
-        <i class="ionicons ion-chevron-down"></i>
       </div>
     </div>
+    <div class='custom-container--fluid summary-section'>
+      <div class="CoveoBreadcrumb"></div>
+    </div>
   </header>
-  <div class='custom-container--fluid summary-section'>
-    <div class="CoveoBreadcrumb"></div>
-  </div>
+
     
   <div class="CoveoPromotedResultsBadge"
     data-show-badge-for-recommended-results="true"
@@ -1257,6 +1261,7 @@
       
   <div class='main-container'>
     <div class='results-filter__column'>
+      <!-- <div class="CoveoBreadcrumb mobile-breadcrumbs"></div> -->
       <div class='widget-filters'>
         <i class="ionicons ion-funnel"></i>
         <span class='filters-title'>
@@ -1264,6 +1269,12 @@
         </span>
       </div>
       <div class='facet-container'>
+        <div id="user-menu" class='show-md__below user-menu'>
+          <div id="current-user">
+            <div class="CoveoMyUserToggle"></div>
+          </div>
+          <i class="ionicons ion-chevron-down"></i>
+        </div>
         <div class="coveo-facet-column">
           <div class="CoveoFacetSlider" data-title="Price Range" data-graph="true" data-start=1 data-end=400 data-graph-steps=60  data-range-slider='true' data-field="@myprice" data-date-field="false" ></div>
           <div class="CoveoCategoryFacet" data-title="Type" data-field="@myroomprop"></div>
@@ -1300,9 +1311,7 @@
             var amenities = raw.myamenities;
           }}
           <div class="results-card">
-            <div class="results-card__img">
-              <span class="CoveoMyImage" data-show-poster="true"></span>
-            </div>
+            <div class="results-card__img-container" style="background: url({{- raw.myimage}})"></div>
             <div class="results-card__main">
               <div class="CoveoFieldValue room-type widget-capsule" data-field="@myroomtype"></div>
               <a class="CoveoResultLink"></a>  
