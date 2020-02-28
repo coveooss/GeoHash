@@ -1,3 +1,44 @@
+// Small tablets and large smartphones (landscape view)
+$screen-sm-min: 576px;
+
+// Small tablets (portrait view)
+$screen-md-min: 768px;
+
+// Tablets and small desktops
+$screen-lg-min: 992px;
+
+// Large tablets and desktops
+$screen-xl-min: 1200px;
+
+// Small devices
+@mixin sm {
+  @media (min-width: #{$screen-sm-min}) {
+      @content;
+  }
+}
+
+// Medium devices
+@mixin md {
+  @media (min-width: #{$screen-md-min}) {
+      @content;
+  }
+}
+
+// Large devices
+@mixin lg {
+  @media (min-width: #{$screen-lg-min}) {
+      @content;
+  }
+}
+
+// Extra large devices
+@mixin xl {
+  @media (min-width: #{$screen-xl-min}) {
+      @content;
+  }
+}
+
+
 .CoveoGeoHashMap {
   position: static;
   overflow: inherit;
@@ -75,12 +116,24 @@ margin-left: 330px;
 
 body, .CoveoSearchInterface {
   font-family: 'Montserrat', sans-serif;
+  display: flex!important;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
 }
 
 header {
-  padding-top: 15px;
-  padding-bottom: 15px;
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: block!important;
+  z-index: 100;
+  background: #fff;
   .container {
+    padding-top: 15px;
+    padding-bottom: 15px;
     display: flex; 
     align-items: center;
     justify-content: space-between;
@@ -95,6 +148,8 @@ header {
   .coveo-search-section-wrapper {
     flex: 1;
     max-width: 690px;
+    min-width: 400px;
+    margin-right: 20px;
   }
 }
 
@@ -102,13 +157,12 @@ header {
   width: 100%;
   max-width: auto;
   margin: 0;
+  padding: 0 10px;
 }
 
-
-#user-menu {
+.user-menu {
   z-index: 3;
   font-size: 16px;
-  display: inline-block;
   margin: 0;
   padding: 0;
   position: relative;
@@ -118,6 +172,26 @@ header {
   font-weight: bold;
   color: #000;
   padding-right: 20px;
+
+  &.show-md__below {
+    display: block;
+    margin-bottom: 20px;
+    @include md {
+      display: none;
+    }
+  }
+  
+  &.show-md__above {
+    display: none;
+    @include md {
+      display: block;
+      font-size: 14px;
+    }
+    @include xl {
+      display: block;
+      font-size: 16px;
+    }
+  }
 }
 
 #user-menu > div {
@@ -164,6 +238,7 @@ header {
 
 .main-container {
   display: flex;
+  overflow-y: scroll;
 
   .main-column {
     flex: 1;
@@ -177,15 +252,14 @@ header {
 
 .CoveoMapWraper {
   width: 100%;
-  height: calc(100vh - 85px); 
+  height: 100%; 
 }
 
 .results-filter__column {
   width: 100%;
-  max-width: 800px;
-  padding: 25px 15px;
+  padding: 15px;
   position: relative;
-  height: calc(100vh - 85px);
+  height: 100%;
   overflow: scroll;
   &::-webkit-scrollbar {
     display: none;
@@ -200,31 +274,26 @@ header {
     transition: all 0.8s ease;
   }
 
-  // @media (min-width: )
+  @include xl {
+    max-width: 800px;
+  }
 }
 
 .facet-container {
-  height: calc(100vh - 85px);
+  height: calc(100% - 100px);
   position: absolute;
   left: 0;
   right: 0;
+  top: 100px;
   background: #fff;
   width: 100%;
   overflow: hidden;
   transform-origin: 50% 0;
   opacity: 0;
   visibility: hidden;
+  overflow: scroll;
   z-index: 10;
   transition: all 0.5s ease;
-
-  &.active-facets {
-    opacity: 1;
-    visibility: visible;
-
-    .coveo-facet-column {
-      transform: translateY(0);
-    }
-  }
 }
 
 .widget-filters {
@@ -292,6 +361,11 @@ header {
   padding-top: 15px;
   padding-bottom: 15px;
   border-top: solid 1px #bcc3ca;
+  flex-direction: column;
+
+  @include md {
+    flex-direction: row;
+  }
 }
 
 .results-card__main {
@@ -299,13 +373,21 @@ header {
   position: relative;
 }
 
-.results-card__img {
-  flex: 0 0 300px;
-  margin-right: 15px;
+.results-card__img-container {
+  padding-bottom: 60%;
+  margin-bottom: 20px;
+  background-size: cover!important;
+  background-position: center center;
+  width: 100%;
+  border-radius: 10px;
 
-  .CoveoMyImage, .myimage, .myimage img {
-    display: block;
-    width: 100%;
+  @include md {
+    padding-bottom: 0;
+    border-radius: 0;
+    margin-bottom: 0;
+    height: 300px;
+    margin-right: 15px;
+    flex: 0 0 400px;
   }
 }
 
@@ -459,7 +541,25 @@ header {
   font-size: 14px;
   margin-left: 20px;
   margin-right: 50px;
+  display: none;
+  @include xl {
+    display: block;
+  }
 }
+
+// .dsktop-breadcrumbs {
+//   display: none;
+//   @include xl {
+//     display: flex;
+//   }
+// }
+
+// .mobile-breadcrumbs {
+//   display: flex;
+//   @include xl {
+//     display: none;
+//   }
+// }
 
 
 // ----- PAGER ----- //
@@ -476,4 +576,25 @@ header {
   color: #888;
   font-weight: bold;
   border: none;
+}
+
+// ------- FACETS OPENED CLASS -------- //
+
+.main-container.active-facets {
+  .facet-container {
+    opacity: 1;
+    visibility: visible;
+
+    .coveo-facet-column {
+      transform: translateY(0);
+    }
+  }
+
+  .results-filter__column {
+    overflow: hidden;
+  }
+}
+
+.coveo-dropdown-header-wrapper {
+  display: none!important;
 }
