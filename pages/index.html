@@ -377,6 +377,7 @@
              };
              imagePath = imagesPerTypeMap[result.raw.mytype] || imagePath;
              if (imagePath==undefined) imagePath='';
+             imagePath = imagePath.replace('aki_policy=medium','aki_policy=large');
            }
      
            let divHtml = imagePath
@@ -1228,8 +1229,7 @@
         <div class='coveo-search-section-wrapper'>
           <div class='coveo-search-section'>
               <div class="CoveoSearchbox" data-enable-omnibox="true" data-placeholder="" data-enable-query-syntax="true">
-                  <span class="CoveoFieldSuggestions" data-field='@mygenre' data-header-title="Genre"></span>
-                  <span class="CoveoFieldSuggestions" data-field='@mycast' data-header-title="Cast"></span>
+                
               </div>
           </div>
         </div>
@@ -1311,7 +1311,7 @@
             var amenities = raw.myamenities;
           }}
           <div class="results-card">
-            <div class="results-card__img-container" style="background: url({{- raw.myimage}})"></div>
+            <div class="results-card__img-container" style="background: url({{- raw.myimage.replace('aki_policy=medium','aki_policy=large')}})"></div>
             <div class="results-card__main">
               <div class="CoveoFieldValue room-type widget-capsule" data-field="@myroomtype"></div>
               <a class="CoveoResultLink"></a>  
