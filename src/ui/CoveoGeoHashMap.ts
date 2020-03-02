@@ -62,8 +62,12 @@ export class CoveoGeoHashMap extends Component {
   private clusterMap: MarkerClusterer;
   private precision: number;
   private idleListener;
+  private zoomListener;
+  private dragListener;
+  private recordIdle: boolean;
   private allBounds: google.maps.LatLngBounds;
   private currentQuery: string;
+  private currentMapQuery: string;
   private updateBounds: boolean;
   private addMapQuery: boolean;
   private resultMarkers: { [key: string]: IResultMarker };
@@ -80,6 +84,7 @@ export class CoveoGeoHashMap extends Component {
       options
     );
     this.resultMarkers = {};
+    this.currentQuery = '';
     this.bind.onRootElement(
       QueryEvents.doneBuildingQuery,
       (args: IBuildingQueryEventArgs) => this.onDoneBuildingQuery(args)
@@ -98,6 +103,8 @@ export class CoveoGeoHashMap extends Component {
     this.updateBounds = true;
     this.addMapQuery = false;
     this.currentQuery = "";
+    this.currentMapQuery = "";
+    this.recordIdle = false;
     this.googleMap = new google.maps.Map(this.element, {
       center: { lat: 52.1284, lng: 5.123 },
       zoom: 2,
@@ -189,113 +196,140 @@ export class CoveoGeoHashMap extends Component {
   }
 
   private onDoneBuildingQuery(args: IBuildingQueryEventArgs) {
-    //When the query is build, we need to check if the basic query changed, if so, we need to update the bounds
-    //if not, we will add the current bounds of the map to the advanced query
-    //Only when the tab is 'default'
+    //When the query is build, we will check if the query has changed.
+    //If the query is changed, then we will remove the map filter.
+    
+    //Remove the zoomchanged/dragend listener, because we do not want to react on changes on the map while executing the query
     google.maps.event.removeListener(this.idleListener);
-    //if (args.queryBuilder.tab === "default") {
-      const queryBuilder = args.queryBuilder;
-      var latfield = this.options.latField;
-      var lonfield = this.options.lonField;
-      this.allBounds = new google.maps.LatLngBounds();
 
-      this.updateBounds = true;
-      //Only update bounds when the entered query is different than the previous one
-      if (args.queryBuilder.expression.build() == this.currentQuery) {
-        this.updateBounds = false;
-      } else {
-        this.updateBounds = true;
-        //Reset map to original position
-        //We do nothing!!!
-        //this.googleMap.setZoom(3);
-        //this.googleMap.setCenter(new google.maps.LatLng(52.1284, 5.123));
-        //this.precision = 2;
-        //this.updateBounds = false;
-      }
-      if (this.currentQuery == "") this.updateBounds = true;
-      //We want to add a distance boost so that results nearby the center are being boosted
-      if (this.precision >= minHashPrecision) {
-        var boostQuery =
-          "$qrf(expression:'-dist(@" +
-          this.options.latField +
-          ", @" +
-          this.options.lonField +
-          ", " +
-          this.googleMap.getCenter().lat() +
-          ", " +
-          this.googleMap.getCenter().lng() +
-          ")',normalizeWeight: 'true',modifier:100)";
-        args.queryBuilder.advancedExpression.add(boostQuery);
-      }
+    const queryBuilder = args.queryBuilder;
+    var latfield = this.options.latField;
+    var lonfield = this.options.lonField;
+    this.allBounds = new google.maps.LatLngBounds();
+
+    //Only update bounds when the entered query is different than the previous one
+    if (args.queryBuilder.expression.build() == this.currentQuery) {
+      //There is nothing to do
+    } else {
+      //We need to reset a previous set mapQuery so that the filter of the mylat is removed
+      this.currentMapQuery = '';
+      this.recordIdle = false;
       this.currentQuery = args.queryBuilder.expression.build();
-      //if (!this.addMapQuery) this.updateBounds = true;
-      if (!this.updateBounds) {
-        var bounds2 = this.googleMap.getBounds();
-        if (bounds2 != undefined) {
-          if (!isNaN(bounds2.getNorthEast().lat())) {
-            var ne = bounds2.getNorthEast(); // LatLng of the north-east corner
-            var sw = bounds2.getSouthWest(); // LatLng of the south-west corder
-            var query = "";
-            //|------------------|
-            //|           NE 53,6|  //lat,lon
-            //|                  |
-            //|SW 52,4           |
-            if (ne.lat() > sw.lat()) {
-              //ne=67>sw=-5
-              query =
-                "@" +
-                latfield +
-                "<=" +
-                ne.lat() +
-                " AND @" +
-                latfield +
-                ">=" +
-                sw.lat();
-            } else {
-              query =
-                "@" +
-                latfield +
-                ">=" +
-                ne.lat() +
-                " AND @" +
-                latfield +
-                "<=" +
-                sw.lat();
-            }
-            if (ne.lng() > sw.lng()) {
-              //ne=67>sw=-5  -70 -142
-              query =
-                query +
-                " @" +
-                lonfield +
-                "<=" +
-                ne.lng() +
-                " AND @" +
-                lonfield +
-                ">=" +
-                sw.lng();
-            } else {
-              query =
-                query +
-                " @" +
-                lonfield +
-                ">=" +
-                ne.lng() +
-                " AND @" +
-                lonfield +
-                "<=" +
-                sw.lng();
-              //172 -64
-              //-64 172
-            }
-            //document.getElementById("myquery").innerHTML = query;
-            document.getElementById("myquery").innerHTML = "";
-            queryBuilder.advancedExpression.add(query);
+    }
+    if (this.currentMapQuery=='' || this.recordIdle==false){
+      this.updateBounds = true;
+    } else 
+    {
+      this.updateBounds = false;
+    }
+    //We want to add a distance boost so that results nearby the center are being boosted
+    if (this.precision >= minHashPrecision) {
+      var boostQuery =
+        "$qrf(expression:'-dist(@" +
+        this.options.latField +
+        ", @" +
+        this.options.lonField +
+        ", " +
+        this.googleMap.getCenter().lat() +
+        ", " +
+        this.googleMap.getCenter().lng() +
+        ")',normalizeWeight: 'true',modifier:100)";
+      args.queryBuilder.advancedExpression.add(boostQuery);
+    }
+
+    //If the currentMapQuery is there, we need to add it to the advanced expression
+    if (this.currentMapQuery!='' || this.recordIdle) {
+      console.log("Current mapQuery: "+this.currentMapQuery);
+      console.log("Current recordIdle: "+this.recordIdle);
+      var bounds2 = this.googleMap.getBounds();
+      if (bounds2 != undefined) {
+        if (!isNaN(bounds2.getNorthEast().lat())) {
+          var ne = bounds2.getNorthEast(); // LatLng of the north-east corner
+          var sw = bounds2.getSouthWest(); // LatLng of the south-west corder
+          var query = "";
+          //|------------------|
+          //|           NE 53,6|  //lat,lon
+          //|                  |
+          //|SW 52,4           |
+          if (ne.lat() > sw.lat()) {
+            //ne=67>sw=-5
+            query =
+              "@" +
+              latfield +
+              "<=" +
+              ne.lat() +
+              " AND @" +
+              latfield +
+              ">=" +
+              sw.lat();
+          } else {
+            query =
+              "@" +
+              latfield +
+              ">=" +
+              ne.lat() +
+              " AND @" +
+              latfield +
+              "<=" +
+              sw.lat();
           }
+          if (ne.lng() > sw.lng()) {
+            //ne=67>sw=-5  -70 -142
+            query =
+              query +
+              " @" +
+              lonfield +
+              "<=" +
+              ne.lng() +
+              " AND @" +
+              lonfield +
+              ">=" +
+              sw.lng();
+          } else {
+            query =
+              query +
+              " @" +
+              lonfield +
+              ">=" +
+              ne.lng() +
+              " AND @" +
+              lonfield +
+              "<=" +
+              sw.lng();
+            //172 -64
+            //-64 172
+          }
+          //document.getElementById("myquery").innerHTML = query;
+          document.getElementById("myquery").innerHTML = "";
+          queryBuilder.advancedExpression.add(query);
+          this.currentMapQuery = query;
+          this.recordIdle = false;
         }
       }
+    }
     //}
   }
+
+  private removeListeners(reference: any) {
+    google.maps.event.removeListener(reference.zoomListener);
+    google.maps.event.removeListener(reference.dragListener);
+  }
+
+  private addListeners(reference: any) {
+    reference.zoomListener = reference.googleMap.addListener(
+      "zoom_changed",
+      function(ev) {
+        console.log("MAP: Zoom changed");
+        reference.recordIdle = true;
+      });
+    reference.dragListener = reference.googleMap.addListener(
+        "dragend",
+        function(ev) {
+          console.log("MAP: Drag End");
+          reference.recordIdle = true;
+        });
+    reference.addIdleListener(true, reference);
+    }
 
   private addIdleListener(slow: boolean, reference: any) {
     //Adds the google map idle listener (which fires when map is completely reloaded)
@@ -308,8 +342,10 @@ export class CoveoGeoHashMap extends Component {
           "idle",
           function(ev) {
             setTimeout(function() {
-              console.log("Map is idle, re execute query");
-              reference.searchInterface.queryController.executeQuery();
+              if (reference.recordIdle) {
+                console.log("Map is idle, re execute query");
+                reference.searchInterface.queryController.executeQuery();
+              }
             }, 500);
           }
         );
@@ -319,7 +355,9 @@ export class CoveoGeoHashMap extends Component {
         ev
       ) {
         setTimeout(function() {
-          reference.searchInterface.queryController.executeQuery();
+          if (reference.recordIdle) {
+            reference.searchInterface.queryController.executeQuery();
+          }
         }, 500);
       });
     }
@@ -345,6 +383,7 @@ export class CoveoGeoHashMap extends Component {
           : " ";
       this.closeAllInfoWindows();
       this.clearResultMarkers();
+      this.removeListeners(this);
       var precision = this.calcPrecision(this);
       //When updating bounds we do not know the exact precision
       if (this.updateBounds) {
@@ -398,11 +437,14 @@ export class CoveoGeoHashMap extends Component {
                 }
               );
               //current.clusterMap.updateClusters();
+              if (current.updateBounds) {
+                console.log(current.allBounds);
+                current.googleMap.fitBounds(current.allBounds);
+              }
+              current.addListeners(current);
             });
-          if (current.updateBounds) {
-            current.googleMap.fitBounds(current.allBounds);
-          }
-          current.addIdleListener(true, current);
+          
+          //current.addIdleListener(true, current);
         } else {
           var allmarkers = [];
 
@@ -520,6 +562,11 @@ export class CoveoGeoHashMap extends Component {
                       }
                     );
                     //current.clusterMap.updateClusters();
+                    if (current.updateBounds) {
+                      console.log(current.allBounds);
+                      current.googleMap.fitBounds(current.allBounds);
+                    }
+                    current.addListeners(current);
                   });
               } else {
                 current.clusterMap = new MarkerClusterer(
@@ -531,12 +578,15 @@ export class CoveoGeoHashMap extends Component {
                     minimumClusterSize: 1
                   }
                 );
+                if (current.updateBounds) {
+                  console.log(current.allBounds);
+                  current.googleMap.fitBounds(current.allBounds);
+                }
+                current.addListeners(current);
                 //current.clusterMap.updateClusters();
               }
-              if (current.updateBounds) {
-                current.googleMap.fitBounds(current.allBounds);
-              }
-              current.addIdleListener(true, current);
+              
+              //current.addIdleListener(true, current);
             });
         }
       }
