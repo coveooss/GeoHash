@@ -30,6 +30,7 @@
             Coveo.SearchEndpoint.endpoints['default'].options.queryStringArguments.mlParameters = addRecommendationPadding;
         })
     </script>
+   
     <script>
       $(function() {
 
@@ -62,7 +63,7 @@
               return url;
             };
         const GetBindings = () => {
-          return Coveo.$('.coveo-results-column > .CoveoResultList').coveo('getBindings');
+          return Coveo.$('.CoveoResultList').coveo('getBindings');
         };
         const $$ = Coveo.$$;
         const usersMap = {
@@ -141,7 +142,7 @@
             this.element.classList.add('coveo-my-toggle');
       
             Coveo.$$(this.element).text('User:');
-      
+            Coveo.$('.ion-chevron-down').on('click', () => this.toggle());
             this.dropdown = this.buildDropdown();
             this.fieldset = this.buildFieldSet();
       
@@ -384,11 +385,11 @@
              ? `<div class="myimage"><img src="${imagePath}" onerror="this.src='emptyP.png';" ></div>`
              : '<div class="noimage" style="width:92px;height:138px"></div>';
            Coveo.$(divHtml)
-             .on('click', e => {
+             /*.on('click', e => {
                $(e.target)
                  .closest('.coveo-result-frame').find('.CoveoQuickview')
                  .coveo('open');
-             })
+             })*/
              .appendTo(element);
          }
        }
@@ -437,12 +438,6 @@
            if (this.options.showPoster) {
              this.addImage();
            }
-           let colors = result.raw.mycolors;
-           if (colors) {
-             this.addColors(colors);
-           } else {
-             this.addTopBorder(element);
-           }
          }
      
          addImage() {
@@ -457,6 +452,8 @@
            };
      
            let imageUrl = imagesPerTypeMap[this.result.raw.mytype];
+           if (imageUrl==undefined) imageUrl='';
+           imageUrl = imageUrl.replace('aki_policy=medium','aki_policy=large');
            if (imageUrl && !url) {
              // right type (Movie, Music, Concert) but a specific image wasn't set.
              imageUrl = 'https://elastic.coveodemo.com/icons/noimage-nofill.png';
@@ -466,7 +463,7 @@
            }
            if (this.options.showUser) {
              $(this.element)
-               .closest('.coveo-result-frame')
+               .closest('.results-card__img-container')
                .css('background-image', `url(${imageUrl})`)
                .on('click', e => {
                  if (e.target.className == 'coveo-result-frame people') {
@@ -480,56 +477,18 @@
                });
            } else {
              $(this.element)
-               .closest('.coveo-result-frame')
+               .closest('.results-card__img-container')
                .css('background-image', `url(${imageUrl})`)
                .on('click', e => {
-                 $(e.target)
+                 //debugger;
+                 $(e.target.parentElement)
                    .find('.CoveoQuickview')
                    .coveo('open');
                });
            }
          }
      
-         addColors(colors) {
-           colors = colors.split(' ');
-           if (colors.length) {
-             let i = 0;
-             // make sure we have at least 5 colors, by repeating previous colors when array is short.
-             while (colors.length < 5) {
-               colors.push(colors[i++]);
-             }
-             colors = colors.map((c, idx) => {
-               let trans = 0.05;
-               if (/*userIdToAdd.sel == 'Individual' && */ this.options.showPoster) {
-                 trans = 0.2;
-               }
-     
-               let t = ((5 - idx) * trans).toFixed(2);
-               return c.replace('(', 'rgba(').replace(')', `,${t})`); // add transparency
-             });
-     
-             let gradient = `linear-gradient(to right, ${colors[0]}, ${colors[1]}), radial-gradient(circle, ${colors[2]}, ${colors[3]}, ${
-             colors[4]
-           })`;
-     
-             if (this.options.showPoster) ;
-     
-             this.addTopBorder(this.element, gradient);
-           }
-         }
-     
-         /**
-          * Sets the baackground gradient on a border
-          * @param {domElement} element
-          * @param {string?} gradient (optional) CSS for background's gradient
-          */
-         addTopBorder(element, gradient) {
-           let backgroundGradient = gradient || 'linear-gradient(45deg, rgba(193,193,193,0.35) 0%,rgba(0,0,0,0) 100%)'; // gradient or default.
-           $(element)
-             .closest('.CoveoResult')
-             .prepend('<div class="TopBorder"></div>')
-             .css('background', backgroundGradient);
-         }
+         
        }
      
        MyBackground.ID = 'MyBackground';
@@ -544,195 +503,195 @@
         * Details and Related
         * Shows tabs with RelatedResults. Tabs are shown based upon the key field
         */
-       class MyDetailsAndRelated extends Coveo.Component {
-         constructor(element, options, bindings, result) {
-           super(element, MyDetailsAndRelated.ID);
-           this.options = Coveo.ComponentOptions.initComponentOptions(element, MyDetailsAndRelated, options);
-           let $el = $(element);
-           this.$parent = $el.parent();
-     
-           let $tabs = [$(`<div class="RelatedTab" data-name="Details" title="Details">Details</div>`)];
-           let queries = [];
-     
-           $('.CoveoMyResultsRelated', this.$parent).each((i, el) => {
-             let tabName = el.dataset.name;
-     
-             let fields = (el.dataset.fields || '').split(';');
-     
-             let skip = fields.length ? true : false; // default to false if no data-fields is set.
-             fields.forEach(f => {
-               // Validate that if we have data-fields set on a tab, the result has it.
-               // For example, Don't show tab Music if there are no artist or song associated to a movie.
-               if (result && result.raw && result.raw[f]) {
-                 skip = false;
-               }
-             });
-     
-             //Fill the queries to check for results later on
-             queries.push({ result: result, dataset: el.dataset, tab: tabName, parent: this.$parent });
-             
-             if (!skip) {
-               //Check if there are results on the tab
-               $tabs.push($(`<div class="RelatedTab" data-name="${tabName}" title="${tabName}">${tabName}</div>`));
-             }
-           });
-           //Check if we have results for each of the tabs
-           this.checkQueries(queries);
-     
-           $el.prepend($tabs);
-     
-           this.result = result;
-           this.$el = $el;
-     
-           $('.RelatedTab', $el).on('click', e => {
-             $('.RelatedTab.active', $el).removeClass('active');
-             $(e.target).addClass('active');
-             let name = e.target.dataset.name;
-             $('.related-content', this.$parent).hide();
-     
-             let $newTab = $('.related-content.' + name, this.$parent);
-             if ($newTab.length) {
-               $newTab.show();
-               if (!$newTab.hasClass('query-done')) {
-                 $newTab.addClass('query-done');
-                 Coveo.$($newTab).coveo('showMoreResults');
-               }
-             }
-           });
-     
-           $('.RelatedTab[data-name="Details"]', $el).addClass('active');
-         }
-     
-         //***************************
-         //composeQuery
-         //  Creates a new query for the checkQuery function
-         //***************************
-         composeQuery(result, dataset) {
-           let newquery = dataset.query;
-           let a = dataset.fields.split(';');
-           let i = 0;
-           for (i = 0; i < a.length; i++) {
-             let fieldcontent = result.raw[a[i]];
-             if (fieldcontent) {
-               fieldcontent = '' + fieldcontent; //make sure it's a string
-               //Workaround for the bad title with the place in it
-               fieldcontent = fieldcontent.replace(/\(.*\)/g, '');
-               //Seems that if you format the field in the UI, it gets the formatted value
-               fieldcontent = fieldcontent.replace(/[;()]/g, ' ');
-               
-               //Comma's must be replaced by ","
-               fieldcontent = fieldcontent.replace(/,/g, '","');
-               //In Elastic the : means a field query
-               newquery = newquery.replace('[FIELD' + (i + 1) + ']', fieldcontent.replace(':', ' '));
-             } else {
-               newquery = newquery.replace('[FIELD' + (i + 1) + ']', '');
-             }
-           }
-           //ugly but for now fine, you would normally do this in a IPE or just before indexing.
-           newquery = newquery.replace('movie script - Screenplays for You', '');
-           return newquery;
-         }
-     
-         //***************************
-         //checkQuery
-         //  Checks the query for all the relatedTabs. Based upon the groupby fields the tab will be made visible or not
-         //***************************
-         checkQuery(fields, query, partial, dataset) {
-           let queryBuilder = new Coveo.QueryBuilder();
-           queryBuilder.locale = GetBindings().queryController.lastQueryBuilder.locale;
-           queryBuilder.pipeline = this.options.pipeline;
-           queryBuilder.searchHub = 'CheckTabs';
-           queryBuilder.enableDebug = false;
-           queryBuilder.enableQuerySyntax = true;
-           queryBuilder.enableDuplicateFiltering = false;
-           queryBuilder.excerptLength = 200;
-     
-           queryBuilder.timezone = GetBindings().queryController.lastQueryBuilder.timezone;
-           queryBuilder.numberOfResults = 0;
-           queryBuilder.groupByRequests = fields;
-     
-           queryBuilder.expression.add(query);
-           if (partial === 'true') {
-             queryBuilder.enablePartialMatch = true;
-             queryBuilder.partialMatchKeywords = 4;
-             queryBuilder.partialMatchThreshold = '50%';
-           }
-           GetBindings()
-             .queryController.getEndpoint()
-             .search(queryBuilder.build())
-             .done(function(data) {
-               dataset.forEach(f => {
-                 if (f.dataset.partialMatch === partial && f.dataset.keyCheck) {
-                   //Check if we have the key in the result, if so enable the tab else disable it
-                   let value = f.dataset.keyCheck.split(';')[1];
-                   let found = false;
-                   data.groupByResults.forEach(res => {
-                     res.values.forEach(groupval => {
-                       if (groupval.value.toLowerCase() === value.toLowerCase()) {
-                         //We have it
-                         found = true;
-                       }
-                     });
-                   });
-                   let $newTab = $('.RelatedTab[data-name="' + f.tab + '"]', f.parent);
-                   if (found) {
-                     $newTab.show();
-                   } else {
-                     $newTab.hide();
-                   }
-                 }
-               });
-             });
-         }
-     
-         doWeHaveIt(tocheck, value) {
-           let wehaveit = false;
-           $.each(tocheck, function(index, obj) {
-             if (obj.field === value) {
-               wehaveit = true;
-             }
-           });
-           return wehaveit;
-         }
-     
-         //***************************
-         //  checkQueries
-         //  builds up the total query to execute for the relatedTabs
-         //***************************
-         checkQueries(queries) {
-           // Partial match queries
-           let checkQueriesWithPartialMatch = partialMatch => {
-             let fields = [];
-             let query = [];
-     
-             queries.forEach(f => {
-               if (f.dataset.partialMatch === partialMatch && f.dataset.keyCheck) {
-                 // Build a single query with an OR on all queries
-                 // The key will be used to check if we have results
-                 // Add keyfield to fields to retrieve
-                 let field = f.dataset.keyCheck.split(';')[0];
-                 if (!this.doWeHaveIt(fields, field)) {
-                   fields.push({ field, sortCriteria: 'nosort' });
-                 }
-                 query.push('(' + this.composeQuery(f.result, f.dataset) + ')');
-               }
-             });
-             if (query.length) {
-               this.checkQuery(fields, query.join(' OR '), partialMatch, queries);
-             }
-           };
-     
-           checkQueriesWithPartialMatch('true');
-           checkQueriesWithPartialMatch('false');
-         }
-       }
-     
-       MyDetailsAndRelated.ID = 'MyDetailsAndRelated';
-       MyDetailsAndRelated.options = {
-        pipeline: Coveo.ComponentOptions.buildLocalizedStringOption()
-       };
-       Coveo.Initialization.registerAutoCreateComponent(MyDetailsAndRelated);
-     
+        class MyDetailsAndRelated extends Coveo.Component {
+          constructor(element, options, bindings, result) {
+            super(element, MyDetailsAndRelated.ID);
+            this.options = Coveo.ComponentOptions.initComponentOptions(element, MyDetailsAndRelated, options);
+            let $el = $(element);
+            this.$parent = $el.parent();
+      
+            let $tabs = [$(`<div class="RelatedTab" data-name="Details" title="Details">Details</div>`)];
+            let queries = [];
+      
+            $('.CoveoMyResultsRelated', this.$parent).each((i, el) => {
+              let tabName = el.dataset.name;
+      
+              let fields = (el.dataset.fields || '').split(';');
+      
+              let skip = fields.length ? true : false; // default to false if no data-fields is set.
+              fields.forEach(f => {
+                // Validate that if we have data-fields set on a tab, the result has it.
+                // For example, Don't show tab Music if there are no artist or song associated to a movie.
+                if (result && result.raw && result.raw[f]) {
+                  skip = false;
+                }
+              });
+      
+              //Fill the queries to check for results later on
+              queries.push({ result: result, dataset: el.dataset, tab: tabName, parent: this.$parent });
+              
+              if (!skip) {
+                //Check if there are results on the tab
+                $tabs.push($(`<div class="RelatedTab" data-name="${tabName}" title="${tabName}">${tabName}</div>`));
+              }
+            });
+            //Check if we have results for each of the tabs
+            this.checkQueries(queries);
+      
+            $el.prepend($tabs);
+      
+            this.result = result;
+            this.$el = $el;
+      
+            $('.RelatedTab', $el).on('click', e => {
+              $('.RelatedTab.active', $el).removeClass('active');
+              $(e.target).addClass('active');
+              let name = e.target.dataset.name;
+              $('.related-content', this.$parent).hide();
+      
+              let $newTab = $('.related-content.' + name, this.$parent);
+              if ($newTab.length) {
+                $newTab.show();
+                if (!$newTab.hasClass('query-done')) {
+                  $newTab.addClass('query-done');
+                  Coveo.$($newTab).coveo('showMoreResults');
+                }
+              }
+            });
+      
+            $('.RelatedTab[data-name="Details"]', $el).addClass('active');
+          }
+      
+          //***************************
+          //composeQuery
+          //  Creates a new query for the checkQuery function
+          //***************************
+          composeQuery(result, dataset) {
+            let newquery = dataset.query;
+            let a = dataset.fields.split(';');
+            let i = 0;
+            for (i = 0; i < a.length; i++) {
+              let fieldcontent = result.raw[a[i]];
+              if (fieldcontent) {
+                fieldcontent = '' + fieldcontent; //make sure it's a string
+                //Workaround for the bad title with the place in it
+                fieldcontent = fieldcontent.replace(/\(.*\)/g, '');
+                //Seems that if you format the field in the UI, it gets the formatted value
+                fieldcontent = fieldcontent.replace(/[;()]/g, ' ');
+                
+                //Comma's must be replaced by ","
+                fieldcontent = fieldcontent.replace(/,/g, '","');
+                //In Elastic the : means a field query
+                newquery = newquery.replace('[FIELD' + (i + 1) + ']', fieldcontent.replace(':', ' '));
+              } else {
+                newquery = newquery.replace('[FIELD' + (i + 1) + ']', '');
+              }
+            }
+            //ugly but for now fine, you would normally do this in a IPE or just before indexing.
+            newquery = newquery.replace('movie script - Screenplays for You', '');
+            return newquery;
+          }
+      
+          //***************************
+          //checkQuery
+          //  Checks the query for all the relatedTabs. Based upon the groupby fields the tab will be made visible or not
+          //***************************
+          checkQuery(fields, query, partial, dataset) {
+            let queryBuilder = new Coveo.QueryBuilder();
+            queryBuilder.locale = GetBindings().queryController.lastQueryBuilder.locale;
+            queryBuilder.pipeline = this.options.pipeline;
+            queryBuilder.searchHub = 'CheckTabs';
+            queryBuilder.enableDebug = false;
+            queryBuilder.enableQuerySyntax = true;
+            queryBuilder.enableDuplicateFiltering = false;
+            queryBuilder.excerptLength = 200;
+      
+            queryBuilder.timezone = GetBindings().queryController.lastQueryBuilder.timezone;
+            queryBuilder.numberOfResults = 0;
+            queryBuilder.groupByRequests = fields;
+      
+            queryBuilder.expression.add(query);
+            if (partial === 'true') {
+              queryBuilder.enablePartialMatch = true;
+              queryBuilder.partialMatchKeywords = 4;
+              queryBuilder.partialMatchThreshold = '50%';
+            }
+            GetBindings()
+              .queryController.getEndpoint()
+              .search(queryBuilder.build())
+              .done(function(data) {
+                dataset.forEach(f => {
+                  if (f.dataset.partialMatch === partial && f.dataset.keyCheck) {
+                    //Check if we have the key in the result, if so enable the tab else disable it
+                    let value = f.dataset.keyCheck.split(';')[1];
+                    let found = false;
+                    data.groupByResults.forEach(res => {
+                      res.values.forEach(groupval => {
+                        if (groupval.value.toLowerCase() === value.toLowerCase()) {
+                          //We have it
+                          found = true;
+                        }
+                      });
+                    });
+                    let $newTab = $('.RelatedTab[data-name="' + f.tab + '"]', f.parent);
+                    if (found) {
+                      $newTab.show();
+                    } else {
+                      $newTab.hide();
+                    }
+                  }
+                });
+              });
+          }
+      
+          doWeHaveIt(tocheck, value) {
+            let wehaveit = false;
+            $.each(tocheck, function(index, obj) {
+              if (obj.field === value) {
+                wehaveit = true;
+              }
+            });
+            return wehaveit;
+          }
+      
+          //***************************
+          //  checkQueries
+          //  builds up the total query to execute for the relatedTabs
+          //***************************
+          checkQueries(queries) {
+            // Partial match queries
+            let checkQueriesWithPartialMatch = partialMatch => {
+              let fields = [];
+              let query = [];
+      
+              queries.forEach(f => {
+                if (f.dataset.partialMatch === partialMatch && f.dataset.keyCheck) {
+                  // Build a single query with an OR on all queries
+                  // The key will be used to check if we have results
+                  // Add keyfield to fields to retrieve
+                  let field = f.dataset.keyCheck.split(';')[0];
+                  if (!this.doWeHaveIt(fields, field)) {
+                    fields.push({ field, sortCriteria: 'nosort' });
+                  }
+                  query.push('(' + this.composeQuery(f.result, f.dataset) + ')');
+                }
+              });
+              if (query.length) {
+                this.checkQuery(fields, query.join(' OR '), partialMatch, queries);
+              }
+            };
+      
+            checkQueriesWithPartialMatch('true');
+            checkQueriesWithPartialMatch('false');
+          }
+        }
+      
+        MyDetailsAndRelated.ID = 'MyDetailsAndRelated';
+        MyDetailsAndRelated.options = {
+         pipeline: Coveo.ComponentOptions.buildLocalizedStringOption()
+        };
+        Coveo.Initialization.registerAutoCreateComponent(MyDetailsAndRelated);
+      
        /* globals Coveo */
      
        /**
@@ -816,391 +775,392 @@
         * Results Related
         * Shows related results based upon the current result, a new query is executed
         */
-       class MyResultsRelated extends Coveo.Component {
-         constructor(element, options, bindings, result) {
-           super(element, MyResultsRelated.ID);
-           this.showingMoreResults = false;
-           this.result = result;
-           this.options = Coveo.ComponentOptions.initComponentOptions(element, MyResultsRelated, options);
-           $(element)
-             .addClass('related-content ' + this.options.name)
-             .hide();
-     
-           Coveo.Assert.exists(result);
-           this.buildElements();
-           this.updateElementVisibility();
-           if (options.alwaysShow) {
-             this.showMoreResults();
-           }
-         }
-     
-         buildElements() {
-           let _this = this;
-           _this.buildHeader();
-           _this.buildResults();
-         }
-     
-         showMoreResultsExternal() {
-           getLocation().then(this._showMoreResultsExternal.bind(this));
-         }
-     
-         _showMoreResultsExternal(globalnear) {
-           //Getting results from an external source (NOT Coveo)
-           //This is very tailored towards getting Movie Tickets from Google
-           let _this = this;
-           let newquery = this.options.query;
-           let a = this.options.fields.split(';');
-           let allfieldsmissing = true;
-           for (let i = 0; i < a.length; i++) {
-             let fieldcontent = this.result.raw[a[i]];
-             let reFieldName = new RegExp(`\\[FIELD${i + 1}\\]`, 'g'); // to replace all [FIELD#]
-     
-             if (fieldcontent) {
-               allfieldsmissing = false;
-               fieldcontent = '' + fieldcontent; //make sure it's a string
-               //Seems that if you format the field in the UI, it gets the formatted value
-               //Workaround for the bad title with the place in it
-               fieldcontent = fieldcontent.replace(/\(.*\)/g, '');
-               fieldcontent = fieldcontent.replace(/[;()]/g, ' ');
-               //Comma's must be replaced by ","
-               fieldcontent = fieldcontent.replace(/,/g, '","');
-               //In Elastic the : means a field query
-               fieldcontent = fieldcontent.replace(':', ' ');
-             }
-             newquery = newquery.replace(reFieldName, fieldcontent || '');
-           }
-     
-           if (allfieldsmissing) {
-             // fieldcontent is invalid or missing, the query will return everything.
-             // So we show "No related" instead.
-             this.updateElementVisibility(0);
-             return false;
-           }
-           var torender = '';
-           var divtoget = this.options.divToGet;
-           var titlecaption = this.options.titleCaption.replace('{LOC}', globalnear);
-           var notitle = this.options.noResultsCaption.replace('{LOC}', globalnear);
-           var results = this.results;
-           newquery = newquery.replace('{LOC}', globalnear);
-           Coveo.$(`<div class="movieloc"/>`)
-             .html('Looking for movies near: ' + globalnear + ' in Google.')
-             .appendTo(results);
-           //var url = 'https://secret-ocean-49799.herokuapp.com/' + encodeURIComponent(newquery) + '';//'http://www.whateverorigin.org/get?url=' + encodeURIComponent(newquery) + '';
-           var url = 'https://cors-anywhere.herokuapp.com/' + (newquery) + '';//'http://www.whateverorigin.org/get?url=' + encodeURIComponent(newquery) + '';
-           $.get(url, function(response) {
-             var xpath = divtoget.split(';');
-             // var json=$.parseJSON(response.contents);
-             var html = $('<html>').html(response);//response.contents);
-             var dates = $(xpath[0], html);
-             torender = '';
-             if (dates.length >= 1) {
-               //dates.first(r=>{
-               //torender+="<tr width=300px><td colspan=2>"+$(dates[r]).find('div').first().attr('data-date')+"</td></tr>";
-               //Location name
-               var locs = $(dates[0]).find(xpath[1]);
-               locs.each(l => {
-                 let $loc = $(locs[l]).find(xpath[2]);
-                 torender += `<tr width="300px"><td>
-         <a target="_blank" class="smallhref" href="https://www.google.com/${$loc.attr('href')}">${$loc.text()}</a>
-     </td><td>`;
-                 //View times
-                 var times = $(locs[l]).find(xpath[3]);
-                 times.each(t => {
-                   torender += '' + times[t].innerText + '&nbsp;&nbsp;';
-                 });
-                 torender += '</td></tr>';
-               });
-               //});
-             }
-             //torender = getElementsByXPath( xpath[0], html);
-     
-             //console.log(torender);
-             if (torender) {
-               _this.showingMoreResults = true;
-               _this.updateElementVisibility(1);
-               this.showExpand = Coveo.$(`<div class="movieplay"/>`)
-                 .html(
-                   `${titlecaption}<br><table cellpadding="3"><th style="text-align: left;">Cinema</th><th style="text-align: left;">Showtimes</th>${torender}</table>`
-                 )
-                 .appendTo(results);
-             } else {
-               _this.updateElementVisibility(0);
-               _this.results.empty();
-               this.noResultsCaption = Coveo.$('<div/>')
-                 .addClass('coveo-folding-header-caption')
-                 .html(notitle)
-                 .appendTo(results);
-             }
-           });
-         }
-         
-         preventEventPropagation() {
-          this.preventEventPropagationOn(Coveo.QueryEvents);
-          this.preventEventPropagationOn(Coveo.OmniboxEvents);
-          this.preventEventPropagationOn(Coveo.ResultListEvents);
-          this.preventEventPropagationOn(Coveo.SettingsEvents);
-          this.preventEventPropagationOn(Coveo.PreferencesPanelEvents);
-          this.preventEventPropagationOn(Coveo.AnalyticsEvents);
-          this.preventEventPropagationOn(Coveo.BreadcrumbEvents);
-          this.preventEventPropagationOn(Coveo.QuickviewEvents);
-          this.preventEventPropagationOn(Coveo.InitializationEvents);
-      }
-      preventEventPropagationOn(eventType, eventName) {
-          if (eventName === void 0) { eventName = function (event) {
-              return event;
-          }; }
-          for (var event_1 in eventType) {
-              Coveo.$$(this.root).on(eventName(event_1), function (e) { return e.stopPropagation(); });
+        class MyResultsRelated extends Coveo.Component {
+          constructor(element, options, bindings, result) {
+            super(element, MyResultsRelated.ID);
+            this.showingMoreResults = false;
+            this.result = result;
+            this.options = Coveo.ComponentOptions.initComponentOptions(element, MyResultsRelated, options);
+            $(element)
+              .addClass('related-content ' + this.options.name)
+              .hide();
+      
+            Coveo.Assert.exists(result);
+            this.buildElements();
+            this.updateElementVisibility();
+            if (options.alwaysShow) {
+              this.showMoreResults();
+            }
           }
-      }
-         showMoreResults() {
-           let _this = this;
-           this.updateElementVisibility();
-           this.preventEventPropagation();
-           this.showingMoreResults = true;
-           
-           if (this.options.keyCheck) {
-             let queryBuilder = new Coveo.QueryBuilder();
-             //Copy settings from last Query Builder
-             let binding = GetBindings();
-             queryBuilder.locale = binding.queryController.lastQueryBuilder.locale;
-             queryBuilder.pipeline = this.options.pipeline;//'default';//binding.queryController.lastQueryBuilder.pipeline;
-             queryBuilder.searchHub = binding.queryController.lastQueryBuilder.searchHub;
-             queryBuilder.sortCriteria = binding.queryController.lastQueryBuilder.sortCriteria;
-             queryBuilder.enableDebug = binding.queryController.lastQueryBuilder.enableDebug;
-             queryBuilder.enableQuerySyntax = true;
-             queryBuilder.enableDuplicateFiltering = true;
-             queryBuilder.excerptLength = binding.queryController.lastQueryBuilder.excerptLength;
-             queryBuilder.addContext({
-              userRole: window.CURRENT_USER_PROFILE.sel,
-              userrole: window.CURRENT_USER_PROFILE.sel
+      
+          buildElements() {
+            let _this = this;
+            _this.buildHeader();
+            _this.buildResults();
+          }
+      
+          showMoreResultsExternal() {
+            getLocation().then(this._showMoreResultsExternal.bind(this));
+          }
+      
+          _showMoreResultsExternal(globalnear) {
+            //Getting results from an external source (NOT Coveo)
+            //This is very tailored towards getting Movie Tickets from Google
+            let _this = this;
+            let newquery = this.options.query;
+            let a = this.options.fields.split(';');
+            let allfieldsmissing = true;
+            for (let i = 0; i < a.length; i++) {
+              let fieldcontent = this.result.raw[a[i]];
+              let reFieldName = new RegExp(`\\[FIELD${i + 1}\\]`, 'g'); // to replace all [FIELD#]
+      
+              if (fieldcontent) {
+                allfieldsmissing = false;
+                fieldcontent = '' + fieldcontent; //make sure it's a string
+                //Seems that if you format the field in the UI, it gets the formatted value
+                //Workaround for the bad title with the place in it
+                fieldcontent = fieldcontent.replace(/\(.*\)/g, '');
+                fieldcontent = fieldcontent.replace(/[;()]/g, ' ');
+                //Comma's must be replaced by ","
+                fieldcontent = fieldcontent.replace(/,/g, '","');
+                //In Elastic the : means a field query
+                fieldcontent = fieldcontent.replace(':', ' ');
+              }
+              newquery = newquery.replace(reFieldName, fieldcontent || '');
+            }
+      
+            if (allfieldsmissing) {
+              // fieldcontent is invalid or missing, the query will return everything.
+              // So we show "No related" instead.
+              this.updateElementVisibility(0);
+              return false;
+            }
+            var torender = '';
+            var divtoget = this.options.divToGet;
+            var titlecaption = this.options.titleCaption.replace('{LOC}', globalnear);
+            var notitle = this.options.noResultsCaption.replace('{LOC}', globalnear);
+            var results = this.results;
+            newquery = newquery.replace('{LOC}', globalnear);
+            Coveo.$(`<div class="movieloc"/>`)
+              .html('Looking for movies near: ' + globalnear + ' in Google.')
+              .appendTo(results);
+            //var url = 'https://secret-ocean-49799.herokuapp.com/' + encodeURIComponent(newquery) + '';//'http://www.whateverorigin.org/get?url=' + encodeURIComponent(newquery) + '';
+            var url = 'https://cors-anywhere.herokuapp.com/' + (newquery) + '';//'http://www.whateverorigin.org/get?url=' + encodeURIComponent(newquery) + '';
+            $.get(url, function(response) {
+              var xpath = divtoget.split(';');
+              // var json=$.parseJSON(response.contents);
+              var html = $('<html>').html(response);//response.contents);
+              var dates = $(xpath[0], html);
+              torender = '';
+              if (dates.length >= 1) {
+                //dates.first(r=>{
+                //torender+="<tr width=300px><td colspan=2>"+$(dates[r]).find('div').first().attr('data-date')+"</td></tr>";
+                //Location name
+                var locs = $(dates[0]).find(xpath[1]);
+                locs.each(l => {
+                  let $loc = $(locs[l]).find(xpath[2]);
+                  torender += `<tr width="300px"><td>
+          <a target="_blank" class="smallhref" href="https://www.google.com/${$loc.attr('href')}">${$loc.text()}</a>
+      </td><td>`;
+                  //View times
+                  var times = $(locs[l]).find(xpath[3]);
+                  times.each(t => {
+                    torender += '' + times[t].innerText + '&nbsp;&nbsp;';
+                  });
+                  torender += '</td></tr>';
+                });
+                //});
+              }
+              //torender = getElementsByXPath( xpath[0], html);
+      
+              //console.log(torender);
+              if (torender) {
+                _this.showingMoreResults = true;
+                _this.updateElementVisibility(1);
+                this.showExpand = Coveo.$(`<div class="movieplay"/>`)
+                  .html(
+                    `${titlecaption}<br><table cellpadding="3"><th style="text-align: left;">Cinema</th><th style="text-align: left;">Showtimes</th>${torender}</table>`
+                  )
+                  .appendTo(results);
+              } else {
+                _this.updateElementVisibility(0);
+                _this.results.empty();
+                this.noResultsCaption = Coveo.$('<div/>')
+                  .addClass('coveo-folding-header-caption')
+                  .html(notitle)
+                  .appendTo(results);
+              }
             });
-             queryBuilder.timezone = binding.queryController.lastQueryBuilder.timezone;
-             queryBuilder.numberOfResults = this.options.numberOfResults;
-             let newquery = this.options.query;
-             let dq = this.options.dq;
-             let a = this.options.fields.split(';');
-             let i = 0;
-             this.expandedComment = this.options.expandedComment;
-             this.expandedQuery = this.options.expandedQuery;
-             let allfieldsmissing = true;
-             for (i = 0; i < a.length; i++) {
-               let fieldcontent = this.result.raw[a[i]];
-               let reFieldName = new RegExp(`\\[FIELD${i + 1}\\]`, 'g'); // to replace all [FIELD#]
-     
-               let fieldExpr = '';
-               let fieldExprES = '';
-               if (fieldcontent) {
-                 allfieldsmissing = false;
-                 fieldcontent = '' + fieldcontent; //make sure it's a string
-     //Workaround for the bad title with the place in it
-     fieldcontent = fieldcontent.replace(/\(.*\)/g, '');
-                 //Seems that if you format the field in the UI, it gets the formatted value
-                 fieldExpr = fieldcontent.replace(/[;()]/g, ' ');
-     
-                 //In Elastic the : means a field query
-                 fieldExprES = fieldExpr.replace(':', ' ');
-                 //Comma's must be replaced by ","
-                 fieldExprES = fieldcontent.replace(/,/g, '","');
-               }
-               //In Elastic the : means a field query
-               newquery = newquery.replace(reFieldName, fieldExprES);
-               if (this.options.dq){
-                 dq= dq.replace(reFieldName, fieldExprES);
-               }
-               this.expandedQuery = this.expandedQuery.replace(reFieldName, fieldExprES);
-               this.expandedComment = this.expandedComment.replace(reFieldName, fieldExpr);
-             }
-             if (allfieldsmissing) {
-               // fieldcontent is invalid or missing, the query will return everything.
-               // So we show "No related" instead.
-               this.updateElementVisibility(0);
-               return false;
-             }
-             if (this.options.filterField) {
-               queryBuilder.filterField = this.options.filterField;
-             }
-             if (this.result.state) {
-               newquery = newquery.replace('[QUERY]', this.result.state['q']);
-               this.expandedQuery = this.expandedQuery.replace('[QUERY]', this.result.state['q']);
-             }
-             if (this.options.dq){
-              queryBuilder.disjunctionExpression.add(dq);
-             }
-             if (this.options.extraBoost && window.musicBoost) {
-               // TODO - Move musicBoost in a Global User object
-               queryBuilder.expression.add(newquery + musicBoost);
-               _this.expandquery = newquery + musicBoost;
-             } else {
-               queryBuilder.expression.add(newquery);
-               _this.expandquery = this.expandedQuery || newquery;
-             }
-             
-             if (this.options.partialMatch) {
-               queryBuilder.enablePartialMatch = true;
-               queryBuilder.partialMatchKeywords = 4;
-               queryBuilder.partialMatchThreshold = '50%';
-             }
-             GetBindings()
-               .queryController.getEndpoint()
-               .search(queryBuilder.build())
-               .done(function(data) {
-                 _this.showingMoreResults = true;
-                 _this.updateElementVisibility(data.results.length);
-                 _this.displayThoseResults(data.results);
-                 //return !data.results.length === 0;
-               });
-           } else {
-             _this.showMoreResultsExternal();
-           }
-         }
-     
-         expandQuery() {
-           Coveo.$('.CoveoFacet').coveo('reset');
-           Coveo.$('#search').coveo('state', 'hd', this.expandedComment);
-           Coveo.$('#search').coveo('state', 'hq', this.expandquery);
-           Coveo.$('#search').coveo('state', 'q', '');
-           //Seems we are not executing analytics if we call executeQuery directly
-           var customEventCause = { name: 'expand ' + this.options.name, type: 'search box' };
-           Coveo.$('#search').coveo('logSearchEvent', customEventCause, {});
-           Coveo.$('#search').coveo('executeQuery');
-         }
-     
-         buildHeader() {
-           this.header = Coveo.$('<div/>')
-             .addClass('coveo-folding-header')
-             .appendTo(this.element);
-         }
-         buildResults() {
-           this.results = Coveo.$('<div/>')
-             .addClass('coveo-folding-results2')
-             .appendTo(this.header);
-           this.noResultsCaption = Coveo.$('<div/>')
-             .addClass('coveo-folding-header-caption')
-             .text(this.options.noResultsCaption)
-             .appendTo(this.results);
-         }
-         updateElementVisibility(subResultsLength) {
-           this.noResultsCaption.hide();
-           if (subResultsLength === 0) {
-             this.noResultsCaption.show();
-           }
-         }
-     
-         scrollToResultElement() {
-           Coveo.$(window).scrollTop(
-             Coveo.$(this.element)
-               .closest('.CoveoResult')
-               .position().top
-           );
-         }
-     
-         displayThoseResults(results) {
-           let _this = this;
-           this.results.empty();
-           if (results.length === 0) {
-             this.noResultsCaption = Coveo.$('<div/>')
-               .addClass('coveo-folding-header-caption')
-               .text(this.options.noResultsCaption)
-               .appendTo(this.results);
-           } else {
-             this.showExpand = Coveo.$(`<div class="coveo-folding-footer-section-for-less"/>`).click(_this.expandQuery.bind(_this));
-     
-             let help = this.options.help;
-             if (help) {
-               this.showExpand.hover(onMouseOverHelp.bind(null, help), onMouseOutHelp.bind(null, help));
-             }
-     
-             let $a = Coveo.$(`<a class="coveo-folding-show-more">Expand to: ${this.expandedComment}</a>`);
-             this.showExpand.append($a);
-     
-             this.showExpand.appendTo(this.results);
-           }
-          /* debugger;
-           const container = document.querySelector(`.coveo-folding-results2`);
-      container.innerHTML = 'Wim';
-           const ResultList = Coveo.get(document.querySelector('.CoveoResultList'));// as Coveo.ResultList;
-      ResultList.buildResults(results).then(async (elements) => {
-        for (let element of elements) {
-          container.append(element);
-        }
-      });*/
-      //debugger;
-           Coveo._.each(results, function(result) {
-             result.raw.collection = result.raw.collection || 'default';
-             _this.renderChildResult(result);
-           });
-         }
-     
-         renderChildResult(childResult) {
-           let binding = GetBindings();
-           Coveo.QueryUtils.setStateObjectOnQueryResult(binding.queryStateModel.get(), childResult);
-           Coveo.QueryUtils.setSearchInterfaceObjectOnQueryResult(binding.searchInterface, childResult);
-     
-           let addToContainer = (container, childResult) => {
-             if (container) {
-               this.autoCreateComponentsInsideResult(container, childResult);
-               Coveo.$(container).addClass('coveo-result-attachments-container CoveoResult');
-               this.results.append(container);
-             }
-           };
-     
-           let containerOrPromise = this.options.resultTemplate.instantiateToElement(childResult,{
-            wrapInDiv: true,
-            checkCondition: true,
-            currentLayout: 'list',
-            responsiveComponents: binding.searchInterface.responsiveComponents}); // Promise on JSUI2 ?
-           if (containerOrPromise && containerOrPromise.then) {
-             containerOrPromise.then(container => {
-               addToContainer(container, childResult);
-             });
-           } else {
-             addToContainer(containerOrPromise, childResult);
-           }
-         }
-     
-         autoCreateComponentsInsideResult(element, result) {
-           //return Coveo.Initialization.automaticallyCreateComponentsInsideResult(element, result);
-           Coveo.Assert.exists(element);
-           let initOptions = GetBindings().searchInterface.options;
-           initOptions = _.extend({}, initOptions, { closeModalBox: false });
-           let initParameters = { options: initOptions, bindings: GetBindings(), result: result };
-           //Coveo.CoveoJQuery.automaticallyCreateComponentsInside(element, initParameters, [MyResultsRelated.ID]);
-           Coveo.Initialization.automaticallyCreateComponentsInside(element, initParameters, [MyResultsRelated.ID]);
-         }
+          }
+          
+          preventEventPropagation() {
+           this.preventEventPropagationOn(Coveo.QueryEvents);
+           this.preventEventPropagationOn(Coveo.OmniboxEvents);
+           this.preventEventPropagationOn(Coveo.ResultListEvents);
+           this.preventEventPropagationOn(Coveo.SettingsEvents);
+           this.preventEventPropagationOn(Coveo.PreferencesPanelEvents);
+           this.preventEventPropagationOn(Coveo.AnalyticsEvents);
+           this.preventEventPropagationOn(Coveo.BreadcrumbEvents);
+           this.preventEventPropagationOn(Coveo.QuickviewEvents);
+           this.preventEventPropagationOn(Coveo.InitializationEvents);
        }
-     
-       MyResultsRelated.ID = 'MyResultsRelated';
-       MyResultsRelated.options = {
-         resultTemplate: Coveo.ComponentOptions.buildTemplateOption({
-           defaultFunction: function() {
-             return new Coveo.DefaultResultTemplate();
+       preventEventPropagationOn(eventType, eventName) {
+           if (eventName === void 0) { eventName = function (event) {
+               return event;
+           }; }
+           for (var event_1 in eventType) {
+               Coveo.$$(this.root).on(eventName(event_1), function (e) { return e.stopPropagation(); });
            }
-         }),
-         name: Coveo.ComponentOptions.buildLocalizedStringOption(),
-         label: Coveo.ComponentOptions.buildLocalizedStringOption(),
-         pipeline: Coveo.ComponentOptions.buildLocalizedStringOption(),
-         dq: Coveo.ComponentOptions.buildLocalizedStringOption(),
-         normalCaption: Coveo.ComponentOptions.buildLocalizedStringOption(),
-         titleCaption: Coveo.ComponentOptions.buildLocalizedStringOption(),
-         expandedComment: Coveo.ComponentOptions.buildLocalizedStringOption(),
-         expandedQuery: Coveo.ComponentOptions.buildStringOption({ defaultValue: '' }),
-         help: Coveo.ComponentOptions.buildStringOption({ defaultValue: '' }),
-         expandedCaption: Coveo.ComponentOptions.buildLocalizedStringOption(),
-         noResultsCaption: Coveo.ComponentOptions.buildLocalizedStringOption(),
-         query: Coveo.ComponentOptions.buildStringOption(), // The Advanced query to execute, fields are noted as [FIELD1][FIELD2] from the fields section
-         fields: Coveo.ComponentOptions.buildStringOption(), // The fields to use from the current result
-         filterField: Coveo.ComponentOptions.buildStringOption(),
-         keyCheck: Coveo.ComponentOptions.buildStringOption({ defaultValue: '' }),
-         divToGet: Coveo.ComponentOptions.buildStringOption({ defaultValue: '' }),
-         numberOfResults: Coveo.ComponentOptions.buildNumberOption(),
-         partialMatch: Coveo.ComponentOptions.buildBooleanOption({ defaultValue: false }),
-         extraBoost: Coveo.ComponentOptions.buildBooleanOption({ defaultValue: false }),
-         alwaysShow: Coveo.ComponentOptions.buildBooleanOption({ defaultValue: false }),
-         indent: Coveo.ComponentOptions.buildNumberOption()
-       };
-     
-       Coveo.Initialization.registerAutoCreateComponent(MyResultsRelated);
+       }
+          showMoreResults() {
+            let _this = this;
+            this.updateElementVisibility();
+            this.preventEventPropagation();
+            this.showingMoreResults = true;
+            
+            if (this.options.keyCheck) {
+              let queryBuilder = new Coveo.QueryBuilder();
+              //Copy settings from last Query Builder
+              let binding = GetBindings();
+              queryBuilder.locale = binding.queryController.lastQueryBuilder.locale;
+              queryBuilder.pipeline = this.options.pipeline;//'default';//binding.queryController.lastQueryBuilder.pipeline;
+              queryBuilder.searchHub = binding.queryController.lastQueryBuilder.searchHub;
+              queryBuilder.sortCriteria = binding.queryController.lastQueryBuilder.sortCriteria;
+              queryBuilder.enableDebug = binding.queryController.lastQueryBuilder.enableDebug;
+              queryBuilder.enableQuerySyntax = true;
+              queryBuilder.enableDuplicateFiltering = true;
+              queryBuilder.excerptLength = binding.queryController.lastQueryBuilder.excerptLength;
+              queryBuilder.addContext({
+               userRole: window.CURRENT_USER_PROFILE.sel,
+               userrole: window.CURRENT_USER_PROFILE.sel
+             });
+              queryBuilder.timezone = binding.queryController.lastQueryBuilder.timezone;
+              queryBuilder.numberOfResults = this.options.numberOfResults;
+              let newquery = this.options.query;
+              let dq = this.options.dq;
+              let a = this.options.fields.split(';');
+              let i = 0;
+              this.expandedComment = this.options.expandedComment;
+              this.expandedQuery = this.options.expandedQuery;
+              let allfieldsmissing = true;
+              for (i = 0; i < a.length; i++) {
+                let fieldcontent = this.result.raw[a[i]];
+                let reFieldName = new RegExp(`\\[FIELD${i + 1}\\]`, 'g'); // to replace all [FIELD#]
+      
+                let fieldExpr = '';
+                let fieldExprES = '';
+                if (fieldcontent) {
+                  allfieldsmissing = false;
+                  fieldcontent = '' + fieldcontent; //make sure it's a string
+      //Workaround for the bad title with the place in it
+      fieldcontent = fieldcontent.replace(/\(.*\)/g, '');
+                  //Seems that if you format the field in the UI, it gets the formatted value
+                  fieldExpr = fieldcontent.replace(/[;()]/g, ' ');
+      
+                  //In Elastic the : means a field query
+                  fieldExprES = fieldExpr.replace(':', ' ');
+                  //Comma's must be replaced by ","
+                  fieldExprES = fieldcontent.replace(/,/g, '","');
+                }
+                //In Elastic the : means a field query
+                newquery = newquery.replace(reFieldName, fieldExprES);
+                if (this.options.dq){
+                  dq= dq.replace(reFieldName, fieldExprES);
+                }
+                this.expandedQuery = this.expandedQuery.replace(reFieldName, fieldExprES);
+                this.expandedComment = this.expandedComment.replace(reFieldName, fieldExpr);
+              }
+              if (allfieldsmissing) {
+                // fieldcontent is invalid or missing, the query will return everything.
+                // So we show "No related" instead.
+                this.updateElementVisibility(0);
+                return false;
+              }
+              if (this.options.filterField) {
+                queryBuilder.filterField = this.options.filterField;
+              }
+              if (this.result.state) {
+                newquery = newquery.replace('[QUERY]', this.result.state['q']);
+                this.expandedQuery = this.expandedQuery.replace('[QUERY]', this.result.state['q']);
+              }
+              if (this.options.dq){
+               queryBuilder.disjunctionExpression.add(dq);
+              }
+              if (this.options.extraBoost && window.musicBoost) {
+                // TODO - Move musicBoost in a Global User object
+                queryBuilder.expression.add(newquery + musicBoost);
+                _this.expandquery = newquery + musicBoost;
+              } else {
+                queryBuilder.expression.add(newquery);
+                _this.expandquery = this.expandedQuery || newquery;
+              }
+              
+              if (this.options.partialMatch) {
+                queryBuilder.enablePartialMatch = true;
+                queryBuilder.partialMatchKeywords = 4;
+                queryBuilder.partialMatchThreshold = '50%';
+              }
+              GetBindings()
+                .queryController.getEndpoint()
+                .search(queryBuilder.build())
+                .done(function(data) {
+                  _this.showingMoreResults = true;
+                  _this.updateElementVisibility(data.results.length);
+                  _this.displayThoseResults(data.results);
+                  //return !data.results.length === 0;
+                });
+            } else {
+              _this.showMoreResultsExternal();
+            }
+          }
+      
+          expandQuery() {
+            Coveo.$('.CoveoFacet').coveo('reset');
+            Coveo.$('#search').coveo('state', 'hd', this.expandedComment);
+            Coveo.$('#search').coveo('state', 'hq', this.expandquery);
+            Coveo.$('#search').coveo('state', 'q', '');
+            //Seems we are not executing analytics if we call executeQuery directly
+            var customEventCause = { name: 'expand ' + this.options.name, type: 'search box' };
+            Coveo.$('#search').coveo('logSearchEvent', customEventCause, {});
+            Coveo.$('#search').coveo('executeQuery');
+          }
+      
+          buildHeader() {
+            this.header = Coveo.$('<div/>')
+              .addClass('coveo-folding-header')
+              .appendTo(this.element);
+          }
+          buildResults() {
+            this.results = Coveo.$('<div/>')
+              .addClass('coveo-folding-results2')
+              .appendTo(this.header);
+            this.noResultsCaption = Coveo.$('<div/>')
+              .addClass('coveo-folding-header-caption')
+              .text(this.options.noResultsCaption)
+              .appendTo(this.results);
+          }
+          updateElementVisibility(subResultsLength) {
+            this.noResultsCaption.hide();
+            if (subResultsLength === 0) {
+              this.noResultsCaption.show();
+            }
+          }
+      
+          scrollToResultElement() {
+            Coveo.$(window).scrollTop(
+              Coveo.$(this.element)
+                .closest('.CoveoResult')
+                .position().top
+            );
+          }
+      
+          displayThoseResults(results) {
+            let _this = this;
+            this.results.empty();
+            if (results.length === 0) {
+              this.noResultsCaption = Coveo.$('<div/>')
+                .addClass('coveo-folding-header-caption')
+                .text(this.options.noResultsCaption)
+                .appendTo(this.results);
+            } else {
+              this.showExpand = Coveo.$(`<div class="coveo-folding-footer-section-for-less"/>`).click(_this.expandQuery.bind(_this));
+      
+              let help = this.options.help;
+              if (help) {
+                this.showExpand.hover(onMouseOverHelp.bind(null, help), onMouseOutHelp.bind(null, help));
+              }
+      
+              let $a = Coveo.$(`<a class="coveo-folding-show-more">Expand to: ${this.expandedComment}</a>`);
+              this.showExpand.append($a);
+      
+              this.showExpand.appendTo(this.results);
+            }
+           /* debugger;
+            const container = document.querySelector(`.coveo-folding-results2`);
+       container.innerHTML = 'Wim';
+            const ResultList = Coveo.get(document.querySelector('.CoveoResultList'));// as Coveo.ResultList;
+       ResultList.buildResults(results).then(async (elements) => {
+         for (let element of elements) {
+           container.append(element);
+         }
+       });*/
+       //debugger;
+            Coveo._.each(results, function(result) {
+              result.raw.collection = result.raw.collection || 'default';
+              _this.renderChildResult(result);
+            });
+          }
+      
+          renderChildResult(childResult) {
+            let binding = GetBindings();
+            Coveo.QueryUtils.setStateObjectOnQueryResult(binding.queryStateModel.get(), childResult);
+            Coveo.QueryUtils.setSearchInterfaceObjectOnQueryResult(binding.searchInterface, childResult);
+      
+            let addToContainer = (container, childResult) => {
+              if (container) {
+                this.autoCreateComponentsInsideResult(container, childResult);
+                Coveo.$(container).addClass('coveo-result-attachments-container CoveoResult');
+                this.results.append(container);
+              }
+            };
+      
+            let containerOrPromise = this.options.resultTemplate.instantiateToElement(childResult,{
+             wrapInDiv: true,
+             checkCondition: true,
+             currentLayout: 'list',
+             responsiveComponents: binding.searchInterface.responsiveComponents}); // Promise on JSUI2 ?
+            if (containerOrPromise && containerOrPromise.then) {
+              containerOrPromise.then(container => {
+                addToContainer(container, childResult);
+              });
+            } else {
+              addToContainer(containerOrPromise, childResult);
+            }
+          }
+      
+          autoCreateComponentsInsideResult(element, result) {
+            //return Coveo.Initialization.automaticallyCreateComponentsInsideResult(element, result);
+            Coveo.Assert.exists(element);
+            let initOptions = GetBindings().searchInterface.options;
+            initOptions = _.extend({}, initOptions, { closeModalBox: false });
+            let initParameters = { options: initOptions, bindings: GetBindings(), result: result };
+            //Coveo.CoveoJQuery.automaticallyCreateComponentsInside(element, initParameters, [MyResultsRelated.ID]);
+            Coveo.Initialization.automaticallyCreateComponentsInside(element, initParameters, [MyResultsRelated.ID]);
+          }
+        }
+      
+        MyResultsRelated.ID = 'MyResultsRelated';
+        MyResultsRelated.options = {
+          resultTemplate: Coveo.ComponentOptions.buildTemplateOption({
+            defaultFunction: function() {
+              return new Coveo.DefaultResultTemplate();
+            }
+          }),
+          name: Coveo.ComponentOptions.buildLocalizedStringOption(),
+          label: Coveo.ComponentOptions.buildLocalizedStringOption(),
+          pipeline: Coveo.ComponentOptions.buildLocalizedStringOption(),
+          dq: Coveo.ComponentOptions.buildLocalizedStringOption(),
+          normalCaption: Coveo.ComponentOptions.buildLocalizedStringOption(),
+          titleCaption: Coveo.ComponentOptions.buildLocalizedStringOption(),
+          expandedComment: Coveo.ComponentOptions.buildLocalizedStringOption(),
+          expandedQuery: Coveo.ComponentOptions.buildStringOption({ defaultValue: '' }),
+          help: Coveo.ComponentOptions.buildStringOption({ defaultValue: '' }),
+          expandedCaption: Coveo.ComponentOptions.buildLocalizedStringOption(),
+          noResultsCaption: Coveo.ComponentOptions.buildLocalizedStringOption(),
+          query: Coveo.ComponentOptions.buildStringOption(), // The Advanced query to execute, fields are noted as [FIELD1][FIELD2] from the fields section
+          fields: Coveo.ComponentOptions.buildStringOption(), // The fields to use from the current result
+          filterField: Coveo.ComponentOptions.buildStringOption(),
+          keyCheck: Coveo.ComponentOptions.buildStringOption({ defaultValue: '' }),
+          divToGet: Coveo.ComponentOptions.buildStringOption({ defaultValue: '' }),
+          numberOfResults: Coveo.ComponentOptions.buildNumberOption(),
+          partialMatch: Coveo.ComponentOptions.buildBooleanOption({ defaultValue: false }),
+          extraBoost: Coveo.ComponentOptions.buildBooleanOption({ defaultValue: false }),
+          alwaysShow: Coveo.ComponentOptions.buildBooleanOption({ defaultValue: false }),
+          indent: Coveo.ComponentOptions.buildNumberOption()
+        };
+      
+        Coveo.Initialization.registerAutoCreateComponent(MyResultsRelated);
+      
      
       
        window.USERS_MAP = usersMap;
@@ -1239,6 +1199,7 @@
         <div id="user-menu" class='show-md__above user-menu'>
           <div id="current-user">
             <div class="CoveoMyUserToggle"></div>
+            
           </div>
           <i class="ionicons ion-chevron-down"></i>
         </div>
@@ -1311,11 +1272,15 @@
             var amenities = raw.myamenities;
           }}
           <div class="results-card">
-            <div class="results-card__img-container" style="background: url({{- raw.myimage.replace('aki_policy=medium','aki_policy=large')}})"></div>
+            <!--<div class="results-card__img-container" style="background: url({{- raw.myimage.replace('aki_policy=medium','aki_policy=large')}})"> -->
+              <div class="results-card__img-container">
+                <span class="CoveoMyBackground" data-show-poster="true"></span>
+            </div>
             <div class="results-card__main">
               <div class="CoveoFieldValue room-type widget-capsule" data-field="@myroomtype"></div>
               <a class="CoveoResultLink"></a>  
               <div class='amenities'>
+                <div class="CoveoExcerpt"></div>
                 {{
                   var limit = amenities.length < 7 ? amenities.length : 7;
                   for(var i = 0; i < limit; i++) {
@@ -1328,7 +1293,7 @@
               </div>
               <div class='results-card__footer'>
                 <div class='reviews'>
-                  <span class="CoveoStarRating" data-rating-field="@myvotecount" data-rating-scale=100></span>
+                  <div class="CoveoQuickview" data-template-id="HouseQuickview"></div><span class="CoveoStarRating" data-rating-field="@myvotecount" data-rating-scale=100></span>
                   <span class="CoveoFieldValue" data-field="@myvotecount"></span>
                 </div>
                 <div class="CoveoFieldValue result-card__price" data-field="@myprice" data-text-caption="$"></div>
@@ -1337,28 +1302,25 @@
           </div>
         </script>
 
-        <script id="YouTubeVideoList" class="result-template" type="text/html" data-layout="list" data-field-filetype="YouTubeVideo">
-          <div class="coveo-result-frame notop" style="min-height: 150px; padding: 8px 10px 10px 10px; border-top-left-radius: 6px; overflow: hidden;">
-            <div style="float: left; padding:0 12px 0 0; margin-left: -2px;">
-              <span class="CoveoYouTubeThumbnail"></span>
-              <div style="padding-left: 10px; font-size: 12px; margin:0.25em 0 0.25em 10px;">
-                <span class="CoveoFieldValue" data-field="@ytvideoduration" data-helper="timeSpan" data-helper-options-is-milliseconds="false"></span>
-                <span class="CoveoText" data-value="•"></span>
-                <span class="CoveoFieldValue" data-field="@ytviewcount"></span>
-                <span class="CoveoText" data-value="views"></span>
+        <script id="Default" class="result-template" type="text/html" data-layout="list">
+          <div class="coveo-result-frame movie" style="padding-left:5px;padding-top: 5px;">
+            <div style="display: inline-block; width: 20%;padding-right: 10px;">
+               <span class="CoveoMyImage" data-show-poster="true"></span>
+            </div>
+            <div style="display: inline-block; width: 75%;vertical-align: top;">
+              <div class="result-float-right role-based-text-color">
+                <span class="CoveoFieldValue" data-field="@date" data-helper="date"></span>
+                
+                
               </div>
-            </div>
+              <a class="CoveoResultLink"></a>
 
-            <div class="coveo-result-cell" style="float:right; text-align:right; width:120px;font-size:12px">
-              <span class="CoveoFieldValue" data-field="@date" data-helper="dateTime"></span>
-              <span class="CoveoMyFeatured"></span>
-              <span class="CoveoMyART"></span>
+              <div class="CoveoExcerpt"></div>
+
+            
             </div>
-            <a class="CoveoResultLink" style="display: block; min-width: 120px;
-            overflow: hidden;
-            text-overflow: ellipsis;"></a>
-            <div class="CoveoExcerpt"></div>
           </div>
+
         </script>
 
         <script id="HouseQuickview" class="result-template" type="text/html" >
@@ -1404,7 +1366,7 @@
   
     <div class='main-column'>
       <div class="CoveoMapWraper">
-        <div style="display:none">
+        <div style="display:block">
           <div id="myprecision" style="display:inline-block;padding:5px;color:red;background-color:yellow;font-size:0.8em"></div>
           <div id="myquery" style="display:inline-block;padding:5px;color:red;background-color:yellow;font-size:0.8em"></div>
         </div>

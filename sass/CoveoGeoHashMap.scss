@@ -66,7 +66,7 @@ $screen-xl-min: 1200px;
 
 .CoveoOmnibox,
 .magic-box-suggestions.magic-box-hasSuggestion {
-  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
   border: none; }
 
 .CoveoOmnibox.magic-box,
@@ -132,8 +132,8 @@ header {
   z-index: 100;
   background: #fff;
   .container {
-    padding-top: 15px;
-    padding-bottom: 15px;
+    padding-top: 10px;
+    padding-bottom: 10px;
     display: flex; 
     align-items: center;
     justify-content: space-between;
@@ -147,19 +147,56 @@ header {
   }
   .coveo-search-section-wrapper {
     flex: 1;
-    max-width: 690px;
+    max-width: 785px;
     min-width: 400px;
     margin-right: 20px;
+
+   
   }
 }
 
+.gm-style-iw-d .coveo-list-layout.CoveoResult .results-card__img-container {
+  height: auto;
+  width: 50%;
+  flex: none; 
+}
+.gm-style-iw-d .coveo-list-layout.CoveoResult .results-card {
+  border-top: none;
+}
+.CoveoBreadcrumb {
+  padding: 5px 0;
+}
 .CoveoSearchInterface .coveo-search-section {
   width: 100%;
   max-width: auto;
   margin: 0;
   padding: 0 10px;
 }
-
+.selectedCluster {
+  /*border: 3px solid red !important;
+  border-radius: 25px !important;*/
+  /*transition: all 0.65s;
+  transform: rotateY(360deg);*/
+  -webkit-transform: scale(1.5);
+  transform: scale(1.5);
+}
+.selectedPoint {
+  /*border: 3px solid red !important;
+  border-radius: 25px !important;*/
+  /*transition: all 0.65s;
+  transform: rotateY(360deg);*/
+  -webkit-transform: scale(1.5);
+  transform: scale(1.5);
+}
+.selectedResult {
+  border-right: 4px solid #CB0000 !important;
+  border-radius: 5px !important;
+}
+.coveo-list-layout.CoveoResult {
+  padding: 0;
+  border: none;
+  border-right: 4px solid transparent;
+}
 .user-menu {
   z-index: 3;
   font-size: 16px;
@@ -254,10 +291,13 @@ header {
   width: 100%;
   height: 100%; 
 }
+.coveo-modal-header {
+  height: 1px;
+}
 
 .results-filter__column {
   width: 100%;
-  padding: 15px;
+  padding: 10px;
   position: relative;
   height: 100%;
   overflow: scroll;
@@ -302,7 +342,7 @@ header {
 }
 
 .widget-filters {
-  padding: 15px 5px;
+  padding: 10px 5px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -313,7 +353,7 @@ header {
   background: #f5f5f5;
   cursor: pointer;
   transition: all 0.5s ease;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 
   .ionicons {
     font-size: 22px;
@@ -359,6 +399,7 @@ header {
 .coveo-list-layout.CoveoResult {
   padding: 0;
   border: none;
+  border-right: 4px solid transparent;
 }
 
 .results-card {
@@ -366,6 +407,7 @@ header {
   padding-top: 15px;
   padding-bottom: 15px;
   border-top: solid 1px #bcc3ca;
+  border-right: 4px solid transparent;
   flex-direction: column;
 
   @include md {
@@ -384,11 +426,12 @@ header {
   background-size: cover!important;
   background-position: center center;
   width: 100%;
-  border-radius: 10px;
+  border-radius: 5px;
+  box-shadow: 1px 1px 3px 0px gray;
 
   @include md {
     padding-bottom: 0;
-    border-radius: 0;
+    border-radius: 5px;
     margin-bottom: 0;
     height: 300px;
     margin-right: 15px;
@@ -398,7 +441,7 @@ header {
 
 .myimage {
   max-height: 200px;
-  overflow: hidden;
+  
 }
 
 .widget-capsule {
@@ -482,7 +525,7 @@ header {
 .CoveoSearchbox .CoveoSearchButton {
   border-top-right-radius: 22px;
   border-bottom-right-radius: 22px;
-  box-shadow: 3px 3px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.2);
 }
 
 
@@ -493,9 +536,25 @@ header {
   font-size: 18px;
 }
 
+.CoveoQuickview {
+  color: rgb(49, 58, 69);;
+  display: inline-block;
+  padding-right: 5px;
+}
+.coveo-icon-for-quickview-svg {
+  margin-top: 8px;
+  width: 20px;
+  height: 12px;
+  color:rgb(49, 58, 69);
+}
+.CoveoExcerpt {
+  word-wrap: break-word;
+  font-size: 0.9em;
+  padding-bottom: 10px;
+}
 .coveo-summary-section {
   width: 100%;
-  padding: 10px 0;
+  padding: 5px 0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -545,13 +604,114 @@ header {
 .CoveoTriggers {
   font-size: 14px;
   margin-left: 20px;
-  margin-right: 50px;
+  margin-right: 5px;
   display: none;
   @include xl {
     display: block;
+    word-break: break-word;
+    max-width: 250px;
   }
 }
+.CoveoMyDetailsAndRelated .RelatedTab {
+  display: inline-block;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+.coveo-details {
+border: thin solid #bcc3ca;
+}
+.RelatedTab.active {
+  opacity: 1;
+  border-bottom: 4px solid #004990;
+  color: #004990;
+}
 
+.RelatedTab.active {
+opacity: 1;
+border-bottom: 4px solid #004990;
+color: #004990;
+}
+
+.RelatedTab:hover {
+opacity: 1;
+border-bottom: 4px solid #004990;
+color: #004990;
+}
+
+.RelatedTab.active:hover {
+background-color: #f7f8f9;
+}
+.RelatedTab {
+  height: 34px;
+  /*width: 60px;*/
+  background-color: rgba(247, 248, 249, 0.6);
+  border-radius: 2px;
+  background-size: 22px;
+  background-repeat: no-repeat;
+  background-position: center;
+  margin-right: 5px;
+  border-bottom: 4px solid transparent;
+  opacity: 0.3;
+}
+.side .title {
+  font-family: Lato;
+  font-size: 24pt;
+  color: #009ddc;
+}
+.side .host {
+  display:inline-block;
+  color: gray;
+}
+.side .city, .side .state, .side .country {
+  display: inline-block;
+  padding-left: 15px;
+  color: gray;
+}
+.side .header_info {
+  font-size: 14pt;
+font-weight: bold;
+}
+.side .info {
+  font-size: 11pt;
+}
+.coveo-modal-container.coveo-mod-big > .coveo-modal-content {
+  border-radius: 5px;
+  padding: 10px 0 0 10px;
+}
+.myimage img, .image img{
+  box-shadow: 1px 1px 3px 0px grey;
+  border-radius: 5px;
+  width: 100%;
+}
+  .myimage img {
+    
+    max-height:250px;
+}
+.result-float-right {
+  float: right;
+  text-align: right;
+  font-size: 12px;
+  position: relative;
+}
+.coveo-modal-container.coveo-quick-view .coveo-modal-body iframe {
+  height: 100%;
+  width: 100%;
+  position: relative;
+  border: none;
+  border-radius: 2px;
+  padding: 10px 0 0 10px;
+}
+.related-content {
+  border: none;
+  border-radius: 2px;
+  background-color: white;
+  padding: 1px;
+  margin-top: 0px;
+}
+.RelatedTab {
+  opacity: 0.6;
+  background-color: rgba(232, 237, 242, 0.6);
+}
 // .dsktop-breadcrumbs {
 //   display: none;
 //   @include xl {

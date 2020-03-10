@@ -616,7 +616,9 @@ MarkerClusterer.prototype.setGridSize = function(size) {
   this.gridSize_ = size;
 };
 
-
+MarkerClusterer.prototype.getClusters= function() {
+  return this.clusters_;
+} 
 /**
  * Returns the min cluster size.
  *
@@ -907,6 +909,7 @@ Cluster.prototype.addMarker = function(marker) {
     for (var i = 0, mark; mark = this.markers_[i]; i++) {
       if (mark.total){
       count += mark.total;
+      //this.id_= mark.id;
       count += -1;//To fix the length
       }
     }
@@ -1127,17 +1130,18 @@ ClusterIcon.prototype.onAdd = function() {
     var pos = this.getPosFromLatLng_(this.center_);
     this.div_.style.cssText = this.createCss(pos);
     this.div_.innerHTML = this.sums_.text;
+    this.div_.style.opacity = "0.5";
   }
 
   var panes = this.getPanes();
   panes.overlayMouseTarget.appendChild(this.div_);
 
   var that = this;
-  //if (this.visible_){
+  if (this.visible_){
   google.maps.event.addDomListener(this.div_, 'click', function(event) {
     that.triggerClusterClick(event);
   });
-//}
+  }
 };
 
 
@@ -1334,6 +1338,7 @@ MarkerClusterer.prototype['getMap'] = MarkerClusterer.prototype.getMap;
 MarkerClusterer.prototype['getMarkers'] = MarkerClusterer.prototype.getMarkers;
 MarkerClusterer.prototype['getMaxZoom'] = MarkerClusterer.prototype.getMaxZoom;
 MarkerClusterer.prototype['getStyles'] = MarkerClusterer.prototype.getStyles;
+MarkerClusterer.prototype['getClusters'] = MarkerClusterer.prototype.getClusters;
 MarkerClusterer.prototype['getTotalClusters'] =
     MarkerClusterer.prototype.getTotalClusters;
 MarkerClusterer.prototype['getTotalMarkers'] =

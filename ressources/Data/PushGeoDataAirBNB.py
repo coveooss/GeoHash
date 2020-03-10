@@ -30,7 +30,7 @@ noratings = True
 sourceId = '***REMOVED***-xim6ba3g4ute5oooqzpv7z2k5i'
 orgId = '***REMOVED***'
 apiKey = '***REMOVED***'
-BASE_URL= 'https://travel.coveo.com/Locations/'
+BASE_URL= 'https://travel.coveodemo.com/Locations/'
 #apiKey = '***REMOVED***'
 #sourceId = '***REMOVED***'
 #orgId = '***REMOVED***'
@@ -350,7 +350,7 @@ def parseFile(filename):
 #push = CoveoPush.Push(sourceId, orgId, apiKey, CoveoPush.Constants.PushApiEndpoint.DEV_PUSH_API_URL)
 push = CoveoPush.Push(sourceId, orgId, apiKey)
 push.SetSizeMaxRequest(50*1024*1024)
-nopush = True
+nopush = False
 if not nopush:
   push.Start(True, True)
 seed(1)
