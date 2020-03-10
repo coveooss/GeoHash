@@ -30,7 +30,7 @@ noratings = True
 sourceId = 'geohashdemopgjz3v7b-xim6ba3g4ute5oooqzpv7z2k5i'
 orgId = 'geohashdemopgjz3v7b'
 apiKey = 'xxcf195af3-6989-49e3-a6bc-603b7f1b36a5'
-BASE_URL= 'https://travel.coveo.com/Locations/'
+BASE_URL= 'https://travel.coveodemo.com/Locations/'
 #apiKey = 'xxcfc7ce27-36f2-4890-b2f8-fa3839023ad5'
 #sourceId = 'geohashdemowa9fxpp6-rmvppmk4oezvrb5vd7r5ru2iqe'
 #orgId = 'geohashdemowa9fxpp6'
@@ -350,7 +350,7 @@ def parseFile(filename):
 #push = CoveoPush.Push(sourceId, orgId, apiKey, CoveoPush.Constants.PushApiEndpoint.DEV_PUSH_API_URL)
 push = CoveoPush.Push(sourceId, orgId, apiKey)
 push.SetSizeMaxRequest(50*1024*1024)
-nopush = True
+nopush = False
 if not nopush:
   push.Start(True, True)
 seed(1)

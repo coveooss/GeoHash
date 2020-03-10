@@ -7,12 +7,16 @@ import {
   Initialization,
   InitializationEvents,
   IQuerySuccessEventArgs,
+  IPreprocessResultsEventArgs,
   IQueryResult,
   ComponentOptions,
   Template,
   TemplateCache,
   TimeSpan,
-  QueryBuilder
+  QueryBuilder,
+  ResultListEvents,
+  IDisplayedNewResultEventArgs,
+  $$
 } from "coveo-search-ui";
 
 export interface ICoveoGeoHashMapOptions {
@@ -22,6 +26,7 @@ export interface ICoveoGeoHashMapOptions {
 }
 
 const minHashPrecision = 7;
+const opacityLevel = 0.6;
 
 /**
  * Interface used to combine Google Map Markers, Google Info Window
@@ -93,6 +98,10 @@ export class CoveoGeoHashMap extends Component {
       QueryEvents.querySuccess,
       (args: IQuerySuccessEventArgs) => this.onQuerySuccess(args)
     );
+    this.bind.onRootElement(
+      ResultListEvents.newResultDisplayed,
+      (args: IDisplayedNewResultEventArgs) => this.onProcess(args)
+    );
     this.bind.onRootElement(BreadcrumbEvents.clearBreadcrumb, () => this.handleClearBreadcrumb());
     this.bind.onRootElement(InitializationEvents.afterInitialization, () =>
       this.initMap()
@@ -108,6 +117,7 @@ export class CoveoGeoHashMap extends Component {
     this.googleMap = new google.maps.Map(this.element, {
       center: { lat: 52.1284, lng: 5.123 },
       zoom: 2,
+      clickableIcons: false,
       mapTypeControl: false,
       mapTypeControlOptions: {
         style: google.maps.MapTypeControlStyle.HORIZONTAL_BAR,
@@ -195,6 +205,20 @@ export class CoveoGeoHashMap extends Component {
     this.addMapQuery = false;
   }
 
+  private onProcess(args: IDisplayedNewResultEventArgs) {
+    //We need to add on every item an data-item ID with the current GeoHash or the urihash
+    var precision = this.precision;
+    var content = '';
+      //When updating bounds we do not know the exact precision
+    
+    content = args.result.raw.urihash;
+    args.item.setAttribute('data-mapuri', content);
+    content = args.result.raw["geohash" + String(precision)]; 
+    args.item.setAttribute('data-mapgeo', content);
+    
+  }
+  
+
   private onDoneBuildingQuery(args: IBuildingQueryEventArgs) {
     //When the query is build, we will check if the query has changed.
     //If the query is changed, then we will remove the map filter.
@@ -222,6 +246,11 @@ export class CoveoGeoHashMap extends Component {
     {
       this.updateBounds = false;
     }
+    //We need to add the geohash to the needed fields
+    //args.queryBuilder.addFieldsToInclude(['geohash'+this.precision]);
+    
+    //Set the precision
+    this.precision = this.calcPrecision(this);
     //We want to add a distance boost so that results nearby the center are being boosted
     if (this.precision >= minHashPrecision) {
       var boostQuery =
@@ -436,6 +465,7 @@ export class CoveoGeoHashMap extends Component {
                   minimumClusterSize: 1
                 }
               );
+              current.addClusterEvents();
               //current.clusterMap.updateClusters();
               if (current.updateBounds) {
                 console.log(current.allBounds);
@@ -505,6 +535,7 @@ export class CoveoGeoHashMap extends Component {
                     const myMark = current.getResultGroupMarker(result, max);
                     myMark.marker["total"] = result.numberOfResults;
                     myMark.marker["rectbounds"] = myMark.rect;
+                    myMark.marker["id"] = result.value;
                     allmarkers.push(myMark.marker);
                   } else {
                     if (result.numberOfResults > 1) {
@@ -562,6 +593,7 @@ export class CoveoGeoHashMap extends Component {
                       }
                     );
                     //current.clusterMap.updateClusters();
+                    current.addClusterEvents();
                     if (current.updateBounds) {
                       console.log(current.allBounds);
                       current.googleMap.fitBounds(current.allBounds);
@@ -578,6 +610,7 @@ export class CoveoGeoHashMap extends Component {
                     minimumClusterSize: 1
                   }
                 );
+                current.addClusterEvents();
                 if (current.updateBounds) {
                   console.log(current.allBounds);
                   current.googleMap.fitBounds(current.allBounds);
@@ -630,11 +663,12 @@ export class CoveoGeoHashMap extends Component {
    */
   private setMarkerAsRelevant(marker: google.maps.Marker) {
     //marker.setIcon('pin5.png');
-    marker.setIcon("mypin2.png");
-    marker.setOpacity(1);
+    marker.setIcon("mypin6a.png");
+    marker.setOpacity(opacityLevel);
     marker.setZIndex(100);
   }
 
+  
   private setMarkerAsBackground(marker: google.maps.Marker) {
     marker.setIcon(null);
     marker.setOpacity(0.2);
@@ -642,10 +676,13 @@ export class CoveoGeoHashMap extends Component {
   }
 
   private getResultMarker(result: IQueryResult): IResultMarker {
-    const key = result.raw.sysrowid;
+    const key = result.raw.urihash;
     if (!this.resultMarkers[key]) {
       // If the query returns an item that didn't already have a marker it will create it.
       this.resultMarkers[key] = this.createResultMarker(result);
+      this.onHover(this.resultMarkers, result.raw.urihash, result,'','mapuri');
+      this.onOut(this.resultMarkers, result.raw.urihash, result,'','mapuri');
+  
     }
     return this.resultMarkers[key];
   }
@@ -655,13 +692,16 @@ export class CoveoGeoHashMap extends Component {
     if (!this.resultMarkers[key]) {
       // If the query returns an item that didn't already have a marker it will create it.
       var mark = this.createResultGroupMarker(result, max);
-      if (mark != undefined) this.resultMarkers[key] = mark;
+      if (mark != undefined) {
+        this.resultMarkers[key] = mark;
+      }
     }
     return this.resultMarkers[key];
   }
 
   private createResultMarker(result: IQueryResult): IResultMarker {
     const marker = this.createMarker(result);
+    marker['id']= result.raw.urihash;
     const rect = null;
     // This creates the marker with all the information to fill the result template that open in the map, in Google map this is called InfoWindow.
     const resultMarker: IResultMarker = {
@@ -671,6 +711,7 @@ export class CoveoGeoHashMap extends Component {
       isOpen: false,
       id: result.raw.urihash
     };
+    
     this.attachInfoWindowOnClick(resultMarker);
     return resultMarker;
   }
@@ -900,7 +941,8 @@ export class CoveoGeoHashMap extends Component {
           infoWindow.setZIndex(9999);
           infoWindow.open(this.googleMap, marker);
           //Add idle listener
-          this.addIdleListener(true, this);
+          this.addListeners(this);
+          //this.addIdleListener(true, this);
           resultMarker.isOpen = true;
           this.sendClickEvent(resultMarker);
         });
@@ -946,6 +988,123 @@ export class CoveoGeoHashMap extends Component {
         marker.isOpen = false;
         marker.infoWindow.close();
       });
+  }
+
+  private changeCluster( cluster ){
+    cluster.clusterIcon_.div_.style.opacity = '1.0';
+  }
+
+  private changeMarker( marker ){
+    marker.setOpacity(1.0);
+  }
+
+  private onHoverResult(selector, marker, cluster){
+    var index = 0, length = selector.length;
+    for ( ; index < length; index++) {
+      selector[index].onmouseover = (e) => {
+        //e.currentTarget.setAttribute('class','selectedResult');
+        $$(e.currentTarget).addClass('selectedResult');
+        //e.currentTarget.setAttribute('class',e.currentTarget.getAttribute('class')+' selectedResult');
+        if (cluster){
+          marker.clusterIcon_.div_.style.oldopacity = marker.clusterIcon_.div_.style.opacity;
+          marker.clusterIcon_.div_.style.opacity = '1.0';
+          //marker.clusterIcon_.div_.cssClass= 'selectedCluster';
+          marker.clusterIcon_.div_.setAttribute('class','selectedCluster');
+          //marker.clusterIcon_.div_.style.border = '1px solid red';
+          //marker.clusterIcon_.div_.style['border-radius'] = '20px';
+        } else {
+          marker['oldopacity'] = marker.getOpacity();
+          marker.setIcon('mypin7a.png');
+          //marker.setOpacity(opacityLevel);
+          //marker.set('class','selectedPoint');
+          //marker.addClass('selectedPoint');
+          //$$(e.currentTarget).addClass('selectedPoint');
+          marker.setAnimation( google.maps.Animation.BOUNCE);
+        }
+      }
+    }
+  }
+
+  private onOutResult(selector, marker, cluster){
+    var index = 0, length = selector.length;
+    for ( ; index < length; index++) {
+        selector[index].onmouseout = (e) => {
+          //e.target.setAttribute('class','');
+          $$(e.currentTarget).removeClass('selectedResult');
+          //e.currentTarget.setAttribute('class',e.currentTarget.getAttribute('class').replace('selectedResult',''));
+          if (cluster) {
+            marker.clusterIcon_.div_.setAttribute('class','');
+          marker.clusterIcon_.div_.style.opacity = marker.clusterIcon_.div_.style.oldopacity;
+          //marker.clusterIcon_.div_.style.border = 'none';
+
+        } else {
+          marker.setIcon('mypin6a.png');
+          //marker.setOpacity(marker['oldopacity']);
+          marker.setAnimation( null );
+          
+          //marker.scale(1);
+          //marker.set('class','');
+          //$$(e.currentTarget).removeClass('selectedPoint');
+          //marker.removeClass('selectedPoint');
+        }
+      }
+  }
+  }
+
+  private addClusterEvents(){
+    var _this = this;
+    window.setTimeout(function() {
+      //First the clusters
+    var clusters = _this.clusterMap.getClusters();
+    for (var i = 0; i < clusters.length; i++) {
+      var marker=clusters[i];
+      //Check if we have an ID, if not it is not a geohash cluster
+      if (marker.getMarkers()[0]['id'].length<8){
+        _this.onHover(clusters, i, null,marker.getMarkers()[0]['id'],'mapgeo');
+        _this.onOut(clusters, i, null,marker.getMarkers()[0]['id'],'mapgeo');
+        //Check if result is in the list, if so change the opacity
+        if (document.querySelectorAll('[data-mapgeo="'+marker.getMarkers()[0]['id']+'"]').length>0){
+          _this.changeCluster(marker);
+          _this.onHoverResult(document.querySelectorAll('[data-mapgeo="'+marker.getMarkers()[0]['id']+'"]'), marker, true);
+          _this.onOutResult(document.querySelectorAll('[data-mapgeo="'+marker.getMarkers()[0]['id']+'"]'), marker, true);
+        }
+      } else {
+        var markers = clusters[i].getMarkers();
+    for (var i2 = 0; i2 < markers.length; i2++) {
+      var marker2=markers[i2];
+        //Check if result is in the list, if so change the opacity
+        _this.onHover(clusters, i, null,marker2['id'],'mapuri');
+        _this.onOut(clusters, i, null,marker2['id'],'mapuri');
+      if (document.querySelectorAll('[data-mapuri="'+marker2['id']+'"]').length>0){
+          _this.changeCluster(marker);
+          if (markers.length>1){
+            _this.onHoverResult(document.querySelectorAll('[data-mapuri="'+marker2['id']+'"]'), marker, true);
+            _this.onOutResult(document.querySelectorAll('[data-mapuri="'+marker2['id']+'"]'), marker, true);
+  
+          }
+          else {
+            _this.changeMarker(marker2);
+          _this.onHoverResult(document.querySelectorAll('[data-mapuri="'+marker2['id']+'"]'), marker2, false);
+          _this.onOutResult(document.querySelectorAll('[data-mapuri="'+marker2['id']+'"]'), marker2, false);
+          }
+          }
+      }
+      }
+    }
+    //Now the points
+    Object.keys(_this.resultMarkers)
+      .map(key => _this.resultMarkers[key])
+      .forEach(marker => {
+        if (_this.clusterMap.getMarkers().indexOf(marker.marker) == -1)
+        {
+      if (document.querySelectorAll('[data-mapuri="'+marker['id']+'"]').length>0){
+          _this.changeMarker(marker.marker);
+          _this.onHoverResult(document.querySelectorAll('[data-mapuri="'+marker['id']+'"]'), marker.marker, false);
+          _this.onOutResult(document.querySelectorAll('[data-mapuri="'+marker['id']+'"]'), marker.marker, false);
+        }
+      }
+    });
+  }, 1000);
   }
 
   private clearResultMarkers() {
@@ -1006,6 +1165,143 @@ export class CoveoGeoHashMap extends Component {
       .fromPointToLatLng(worldCoordinateNewCenter);
     this.googleMap.setCenter(newCenter);
   }
+
+  public addResultClass( selector ) {
+    var index = 0, length = selector.length;
+    for ( ; index < length; index++) {
+        //selector[index].style.oldopacity = selector[index].style.opacity;
+        //selector[index].style.opacity = opacityLevel;
+        $$(selector[index]).addClass('selectedResult');
+        //selector[index].setAttribute('class','selectedResult');
+        selector[index].scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    return selector.length==0;
+  }
+
+  public removeResultClass( selector ) {
+    var index = 0, length = selector.length;
+    for ( ; index < length; index++) {
+        //selector[index].style.opacity = selector[index].style.oldopacity;
+        //selector[index].setAttribute('class','');
+        $$(selector[index]).removeClass('selectedResult');
+    }
+  }
+
+  public onHover(resultMarkers, id, result, ref, field) {
+    //Get the proper object
+    let uri='';
+    let geoid='';
+    let marker;
+    if (result) {
+      //We have a normal marker
+      marker = resultMarkers[id].marker;
+      if (marker) {
+          uri = id;
+          geoid = result.raw["geohash" + String(this.precision)]; 
+          marker.addListener("mouseover", (e) => {
+            marker['oldopacity'] = marker.getOpacity();
+            marker.setIcon('mypin7a.png');
+            //marker.setOpacity(opacityLevel);
+            //marker.scale(1.5);
+            //marker.set('class','selectedPoint');
+            //marker.setAnimation( google.maps.Animation.BOUNCE);
+            //$$(e.currentTarget).addClass('selectedPoint');
+            //marker.addClass('selectedPoint');
+            let content = uri;
+            if (uri!='') {
+              if( this.addResultClass(document.querySelectorAll('[data-mapuri="'+id+'"]'))){
+                content = result.raw["geohash" + String(this.precision)]; 
+                this.addResultClass(document.querySelectorAll('[data-mapgeo="'+id+'"]'));
+              }
+            } else {
+              this.addResultClass(document.querySelectorAll('[data-mapgeo="'+id+'"]'));
+      
+            }
+          });
+      }
+    } else
+    {
+      //We have a cluster
+      //var index = 0, length = resultMarkers.length;
+      var index = id;
+      //for ( ; index < length; index++) {
+        //if (resultMarkers[index].getMarkers()[0]['id']==id){
+          marker = resultMarkers[index].clusterIcon_;
+          if (marker.div_.onmouseover == undefined) {
+          marker.div_.onmouseover = (e) => { 
+            
+            marker.div_.style.oldopacity = marker.div_.style.opacity;
+            marker.div_.style.opacity = '1.0';
+            //marker.div_.class= 'selectedCluster';
+            marker.div_.setAttribute('class','selectedCluster');
+            //marker.div_.style.border = '1px solid red';
+            //marker.div_.style['border-radius'] = '20px';
+            //marker.div_.style. = '20px';
+            this.addResultClass(document.querySelectorAll('[data-'+field+'="'+ref+'"]'));
+          };
+          uri = '';
+          geoid = id;
+        }
+        //}
+      //}
+    }
+    
+  }
+
+  public onOut(resultMarkers, id, result,ref,field) {
+    //Get the proper object
+    let uri='';
+    let geoid='';
+    let marker;
+    if (result) {
+      //We have a normal marker
+      marker = resultMarkers[id].marker;
+      if (marker) {
+          uri = id;
+          geoid = result.raw["geohash" + String(this.precision)]; 
+          marker.addListener("mouseout", (e) => {
+            //marker.setOpacity(marker['oldopacity']);
+            marker.setIcon('mypin6a.png');
+            //marker.scale(1);
+            //marker.setAnimation( null );
+            //marker.removeClass('selectedPoint');
+            //marker.set('class','');
+            //$$(e.currentTarget).removeClass('selectedPoint');
+            let content = uri;
+            if (uri!='') {
+              this.removeResultClass(document.querySelectorAll('[data-mapuri="'+id+'"]'));
+              content = result.raw["geohash" + String(this.precision)]; 
+              this.removeResultClass(document.querySelectorAll('[data-mapgeo="'+id+'"]'));
+              
+            } else {
+              this.removeResultClass(document.querySelectorAll('[data-mapgeo="'+id+'"]'));
+      
+            }
+          });
+      }
+    } else
+    {
+      //We have a cluster
+      //var index = 0, length = resultMarkers.length;
+      var index=id;
+      //for ( ; index < length; index++) {
+      //  if (resultMarkers[index].getMarkers()[0]['id']==id){
+          marker = resultMarkers[index].clusterIcon_;
+          if (marker.div_.onmouseout==undefined){
+          marker.div_.onmouseout = () => { 
+            marker.div_.style.opacity = marker.div_.style.oldopacity;
+            marker.div_.setAttribute('class','');
+            this.removeResultClass(document.querySelectorAll('[data-'+field+'="'+ref+'"]'));
+          };
+          uri = '';
+          geoid = id;
+        }
+        //}
+      //}
+    }
+    
+  }
+  
 
   public focusOnMarker(markerId: string) {
     Object.keys(this.resultMarkers)
