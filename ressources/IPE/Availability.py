@@ -6,8 +6,8 @@ import decimal
 #----------------------------------------------------------
 #Initialize, 3 months back, 3 years further
 #----------------------------------------------------------
-
 #Field to store the availability in
+log("AddAvail")
 alldatesfield="mydateavail"
 alldates=""
 Date=datetime.datetime.now()
@@ -27,18 +27,18 @@ tot=(dateEnd-dateBegin).days
 
 #print 'Total nr of days:'+str(tot)
 for i in range( 0,tot):
-    thisdate2=dateBegin+datetime.timedelta(days=i)
-    #currenthours=random.randint(0,8)
-    hours=0
-    if (thisdate2.month % currenthours)==0:
-        hours=8
-    
+  thisdate2=dateBegin+datetime.timedelta(days=i)
+  #currenthours=random.randint(0,8)
+  hours=0
+  if (thisdate2.month % currenthours)==0:
+    hours=8
+
     #if ((thisdate2-dateBeginP).days>0 and (thisdate2-dateEndP).days<0):
-      #   hours=8
+    #   hours=8
     #if ((thisdate2-dateBeginP2).days>0 and (thisdate2-dateEndP2).days<0):
     #    hours=8
     if (hours>3):
-        alldates=alldates+";"+str(thisdate2.year)+str(thisdate2.month).zfill(2)+str(thisdate2.day).zfill(2)
+      alldates=alldates+";"+str(thisdate2.year)+str(thisdate2.month).zfill(2)+str(thisdate2.day).zfill(2)
 
-print (alldates)
+      #print (alldates)
 document.add_meta_data({alldatesfield:alldates})
