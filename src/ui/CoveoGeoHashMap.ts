@@ -248,7 +248,7 @@ export class CoveoGeoHashMap extends Component {
     }
     //We need to add the geohash to the needed fields
     //args.queryBuilder.addFieldsToInclude(['geohash'+this.precision]);
-    
+    document.getElementById("myquery").innerHTML = "";
     //Set the precision
     this.precision = this.calcPrecision(this);
     //We want to add a distance boost so that results nearby the center are being boosted
