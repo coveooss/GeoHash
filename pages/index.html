@@ -37,6 +37,7 @@
         const toggleFilters = () => {
           const widgetBtn =  document.querySelector('.widget-filters');
           widgetBtn.addEventListener('click', function(e) {
+            //document.querySelector('.main-container').top = widgetBtn.offsetTop + 100+'px';
             document.querySelector('.main-container').classList.toggle('active-facets');
             
           });
@@ -1219,7 +1220,12 @@
     data-color-for-featured-results="orange"
     data-color-for-recommended-results="green"></div>
   <div class='CoveoAnalytics'></div>
-      
+  <div id="user-menu" class='show-md__below user-menu'>
+    <div id="current-user">
+      <div class="CoveoMyUserToggle"></div>
+    </div>
+    <i class="ionicons ion-chevron-down"></i>
+  </div>
   <div class='main-container'>
     <div class='results-filter__column'>
       <!-- <div class="CoveoBreadcrumb mobile-breadcrumbs"></div> -->
@@ -1230,12 +1236,7 @@
         </span>
       </div>
       <div class='facet-container'>
-        <div id="user-menu" class='show-md__below user-menu'>
-          <div id="current-user">
-            <div class="CoveoMyUserToggle"></div>
-          </div>
-          <i class="ionicons ion-chevron-down"></i>
-        </div>
+        
         <div class="coveo-facet-column">
           <div class="CoveoFacetSlider" data-title="Price Range" data-graph="true" data-start=1 data-end=400 data-graph-steps=60 data-display-as-value-unit-sign='$' data-range-slider='true' data-field="@myprice" data-date-field="false" ></div>
           <div class="CoveoCategoryFacet" data-title="Type" data-field="@myroomprop"></div>
