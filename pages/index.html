@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, height=device-height">
@@ -1220,12 +1221,6 @@
     data-color-for-featured-results="orange"
     data-color-for-recommended-results="green"></div>
   <div class='CoveoAnalytics'></div>
-  <div id="user-menu" class='show-md__below user-menu'>
-    <div id="current-user">
-      <div class="CoveoMyUserToggle"></div>
-    </div>
-    <i class="ionicons ion-chevron-down"></i>
-  </div>
   <div class='main-container'>
     <div class='results-filter__column'>
       <!-- <div class="CoveoBreadcrumb mobile-breadcrumbs"></div> -->
@@ -1236,7 +1231,12 @@
         </span>
       </div>
       <div class='facet-container'>
-        
+        <div id="user-menu" class='show-md__below user-menu'>
+          <div id="current-user">
+            <div class="CoveoMyUserToggle"></div>
+          </div>
+          <i class="ionicons ion-chevron-down"></i>
+        </div>
         <div class="coveo-facet-column">
           <div class="CoveoFacetSlider" data-title="Price Range" data-graph="true" data-start=1 data-end=400 data-graph-steps=60 data-display-as-value-unit-sign='$' data-range-slider='true' data-field="@myprice" data-date-field="false" ></div>
           <div class="CoveoCategoryFacet" data-title="Type" data-field="@myroomprop"></div>
@@ -1305,14 +1305,9 @@
             <div style="display: inline-block; width: 75%;vertical-align: top;">
               <div class="result-float-right role-based-text-color">
                 <span class="CoveoFieldValue" data-field="@date" data-helper="date"></span>
-                
-                
               </div>
               <a class="CoveoResultLink"></a>
-
               <div class="CoveoExcerpt"></div>
-
-            
             </div>
           </div>
 
@@ -1323,7 +1318,7 @@
             <div class="coveo-quick-view-header">
             </div>
             <div class="CoveoQuickviewDocument" style="height:60%"></div>
-            <div class="CoveoMyDetailsAndRelated" data-pipeline='default' style="padding-top:15px;padding-left: 15px;">
+            <div class="CoveoMyDetailsAndRelated" data-pipeline='default'>
                 <table class="CoveoFieldTable coveo-details related-content Details query-done" data-allow-minimization="false">
                     <tr data-field="@myproptype" data-caption="Property type"></tr>
                     <tr data-field="@myroomtype" data-caption="Room type"></tr>
@@ -1361,7 +1356,7 @@
   
     <div class='main-column'>
       <div class="CoveoMapWraper">
-        <div style="display:block">
+        <div style="display:none">
           <div id="myprecision" style="display:inline-block;padding:5px;color:red;background-color:yellow;font-size:0.8em"></div>
           <div id="myquery" style="display:inline-block;padding:5px;color:red;background-color:yellow;font-size:0.8em"></div>
         </div>
