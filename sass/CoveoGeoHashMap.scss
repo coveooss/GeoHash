@@ -93,12 +93,15 @@ margin-left: 330px;
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
   border: none;}
 
-.gm-style-iw div .coveo-card-layout.CoveoResult {
+.gm-style-iw div .coveo-list-layout.CoveoResult {
   box-shadow: none;
   margin: none;
   padding: none;
-  font-family: lato }
-
+  border-top:none;
+   }
+   .gm-style {
+    font-family: 'Verdana', sans-serif;
+   }
 .gm-style-iw div  coveo-clickable {
   font-weight: 800;
 }
@@ -115,7 +118,7 @@ margin-left: 330px;
 ------------------------------------------------------------------------------ */
 
 body, .CoveoSearchInterface {
-  font-family: 'Montserrat', sans-serif;
+  font-family: 'Verdana', sans-serif;
   display: flex!important;
   flex-direction: column;
   height: 100vh;
@@ -404,13 +407,14 @@ header {
   padding: 0;
   border: none;
   border-right: 4px solid transparent;
+  border-top: solid 1px #bcc3ca;
 }
 
 .results-card {
   display: flex;
   padding-top: 15px;
   padding-bottom: 15px;
-  border-top: solid 1px #bcc3ca;
+  
   border-right: 4px solid transparent;
   flex-direction: column;
 
@@ -432,7 +436,7 @@ header {
   width: 100%;
   border-radius: 5px;
   box-shadow: 1px 1px 3px 0px gray;
-
+  cursor: pointer;
   @include md {
     padding-bottom: 0;
     border-radius: 5px;
@@ -537,9 +541,11 @@ header {
 
 .CoveoQuerySummary {
   color: #000;
-  font-size: 18px;
+  font-size: 16px;
 }
-
+.coveo-promoted-result-badge {
+  margin-top: 3px;
+}
 .CoveoQuickview {
   color: rgb(49, 58, 69);;
   display: inline-block;
@@ -555,6 +561,7 @@ header {
   word-wrap: break-word;
   font-size: 0.9em;
   padding-bottom: 10px;
+  color: #888;
 }
 .coveo-summary-section {
   width: 100%;
@@ -632,6 +639,9 @@ header {
 
 .RelatedTab:hover {
   cursor: pointer;
+  border-bottom: 2px solid #000;
+  color: #000;
+  opacity: 0.8;
 }
 
 .RelatedTab {
@@ -656,6 +666,10 @@ font-weight: bold;
   padding: 10px;
   max-width: 960px;
 }
+.coveo-modal-container.coveo-quick-view .coveo-modal-body .coveo-quickview-header {
+  height: auto;
+  display: none;
+}
 .myimage img, .image img{
   box-shadow: 1px 1px 3px 0px grey;
   border-radius: 5px;
@@ -670,6 +684,9 @@ font-weight: bold;
   text-align: right;
   font-size: 12px;
   position: relative;
+}
+.coveo-modal-container * {
+  font-family: Verdana, sans-serif;
 }
 .coveo-modal-container.coveo-quick-view .coveo-modal-body iframe {
   height: 100%;

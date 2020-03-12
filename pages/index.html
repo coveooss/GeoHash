@@ -511,7 +511,6 @@
             this.options = Coveo.ComponentOptions.initComponentOptions(element, MyDetailsAndRelated, options);
             let $el = $(element);
             this.$parent = $el.parent();
-      
             let $tabs = [$(`<div class="RelatedTab" data-name="Details" title="Details">Details</div>`)];
             let queries = [];
       
@@ -1320,10 +1319,10 @@
             <div class="CoveoQuickviewDocument" style="height:60%"></div>
             <div class="CoveoMyDetailsAndRelated" data-pipeline='default'>
                 <table class="CoveoFieldTable coveo-details related-content Details query-done" data-allow-minimization="false">
-                    <tr data-field="@myproptype" data-caption="Property type"></tr>
-                    <tr data-field="@myroomtype" data-caption="Room type"></tr>
-                    <tr data-field="@mybedtype" data-caption="Bed Type"></tr>
-                    <tr data-field="@myamenities" data-caption="Amenities" data-split-values="true"></tr>
+                    <tr data-field="@myproptype" data-facet='none' data-caption="Property type" data-html></tr>
+                    <tr data-field="@myroomtype" data-facet='none' data-caption="Room type"></tr>
+                    <tr data-field="@mybedtype" data-facet='none' data-caption="Bed Type"></tr>
+                    <tr data-field="@myamenities" data-facet='none' data-caption="Amenities" data-split-values="true"></tr>
                 </table>
               </div>
               
