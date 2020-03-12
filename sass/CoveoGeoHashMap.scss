@@ -151,7 +151,7 @@ header {
   .coveo-search-section-wrapper {
     flex: 1;
     max-width: 785px;
-    min-width: 400px;
+    min-width: 320px;
     margin-right: 20px;
 
    
@@ -759,6 +759,7 @@ font-weight: bold;
 
     .coveo-facet-column {
       transform: translateY(0);
+      display: block!important;
     }
   }
 
