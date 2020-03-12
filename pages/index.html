@@ -20,6 +20,12 @@
     <link rel="stylesheet" type="text/css" href='https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css'>
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
     <script src="https://maps.googleapis.com/maps/api/js?libraries=geometry&key=***REMOVED***" async defer></script>
+    <!-- for datepicker -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+    <!-- end for datepicker -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
           const addRecommendationPadding =  "{\"padding\": \"trending\" }";
@@ -750,7 +756,33 @@
        MyImageSmall.ID = 'MyImageSmall';
        Coveo.Initialization.registerAutoCreateComponent(MyImageSmall);
      
-       
+      var FieldnameAvail = "@mydateavail";
+      var FieldnameAvailClean = "mydateavail";
+      var NrOfMonths = 0;
+
+      //Function to get the query to construct, based on the selected dates
+      function getFullDates(min, max) {
+        var result = "";
+        var minDate = new Date(min);
+        var maxDate = new Date(max);
+        var NrofDays = 0;
+        var one_day = 1000 * 60 * 60 * 24;
+        NrOfMonths = maxDate.getMonth() - minDate.getMonth() + 1;
+        NrofDays = Math.round((maxDate.getTime() - minDate.getTime()) / one_day);
+        for (i = 0; i <= NrofDays-1; i++) {
+          var check = new Date(minDate.getFullYear(), minDate.getMonth(), minDate.getDate() + i);
+          //Do not add saturday and sundays
+          if (check.getDay() % 6 == 0) {}
+          else {
+            if (result == "") {
+              result = FieldnameAvail + "=\"" + moment(check).format('YYYYMMDD') /*+ Hours.ToString() */ + "\"";
+            } else {
+              result = result + " AND " + FieldnameAvail + "=\"" +moment(check).format('YYYYMMDD') /*+ Hours.ToString() */ + "\"";
+            }
+          }
+        }
+        return result;
+      }
      
        /* globals Coveo, musicBoost */
      
