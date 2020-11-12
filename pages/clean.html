@@ -2,7 +2,7 @@
 
 	<!DOCTYPE html>
 	<html>
-		
+
 	<head>
 		<title>DynamicHouse</title>
 		<meta charset="UTF-8">
@@ -20,27 +20,16 @@
 <script type="text/javascript" src="https://static.cloud.coveo.com/interfaceeditor/v1.13/js/cultures/toolbox-en.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/whatwg-fetch@3.0.0/dist/fetch.umd.min.js"></script>
 
-		
+
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
       Coveo.SearchEndpoint.endpoints['default'] = new Coveo.SearchEndpoint({
         restUri: 'https://platform.cloud.coveo.com/rest/search',
-        accessToken: '***REMOVED***',
-        //accessToken: '***REMOVED***',
+        accessToken: 'YOUR-TOKEN',
         queryStringArguments: {
-          organizationId: '***REMOVED***'
+          organizationId: 'YOUR-ORG-ID'
         },
     });
-			/*Coveo.SearchEndpoint.endpoints['default'] = new Coveo.SearchEndpoint({
-  restUri: '/rest/search',
-  accessToken: '***REMOVED***',
-  queryStringArguments: {
-    organizationId: '***REMOVED***'
-  },
-  renewAccessToken: function() {
-    window.location = window.location.pathname + window.location.hash
-  }
-});*/
 	/*		Coveo.Analytics.options.endpoint.defaultValue = 'https://usageanalytics.coveo.com' */
 Coveo.Analytics.options.searchHub.defaultValue = 'default';
 Coveo.Analytics.options.organization.defaultValue = '***REMOVED***';
@@ -51,7 +40,7 @@ searchPageRoot.addEventListener("afterComponentsInitialization", function () {
   var analytics = document.querySelector('.CoveoAnalytics');
   if (analytics != null) {
     Coveo.get(analytics).setOriginContext('Hosted');
-  }			
+  }
 });
 
 /*
@@ -62,7 +51,7 @@ var authenticate = function () {
     searchPageRoot.addEventListener("afterInitialization", function () {
       return canEdit ? resolve(canEdit): reject(canEdit);
     });
-  })   
+  })
 };
 var currentPage = 'DynamicHouse';
 var currentLocation = encodeURIComponent(window.location.href);
@@ -76,8 +65,8 @@ var del = function (id) {
   fetch(url, {
     method : 'DELETE',
     headers: {
-      'X-CSRF-TOKEN':'***REMOVED***',
-      'Authorization': 'Bearer ***REMOVED***'
+      'X-CSRF-TOKEN':'X',
+      'Authorization': 'Bearer X'
     }
   }).then(function() {
     window.location.href = "https://platform.cloud.coveo.com/admin/#***REMOVED***/search/search-pages/"
@@ -95,7 +84,7 @@ new Coveo.InterfaceEditor.InterfaceToolbox({
 */
 		})
 	</script>
-	
+
 	</head>
 		<body>
 			<html><head></head><body><div id="search" class="CoveoSearchInterface" data-enable-history="true" data-pipeline="Search">

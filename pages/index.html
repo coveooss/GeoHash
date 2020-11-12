@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, height=device-height">
     <title>Coveo Map</title>
-   
+
     <link rel="icon" type="image/png" href="https://labs.coveodemo.com/icons/coveo.png">
 
     <link rel="stylesheet" href="./css/CoveoFullSearch.css" />
@@ -19,7 +19,7 @@
     <script src="markerclusterer.js"></script>
     <link rel="stylesheet" type="text/css" href='https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css'>
     <link href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap" rel="stylesheet">
-    <script src="https://maps.googleapis.com/maps/api/js?libraries=geometry&key=***REMOVED***" async defer></script>
+    <script src="https://maps.googleapis.com/maps/api/js?libraries=geometry&key=YOUR-GOOGLE-KEY" async defer></script>
     <!-- for datepicker -->
     <!--<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
@@ -31,11 +31,12 @@
           const addRecommendationPadding =  "{\"padding\": \"trending\" }";
             Coveo.SearchEndpoint.endpoints['default'] = new Coveo.SearchEndpoint({
                 restUri: 'https://platform.cloud.coveo.com/rest/search',
+                accessToken: 'YOUR-TOKEN',
             });
             Coveo.SearchEndpoint.endpoints['default'].options.queryStringArguments.mlParameters = addRecommendationPadding;
         })
     </script>
-   
+
     <script>
       $(function() {
 
@@ -44,10 +45,10 @@
           widgetBtn.addEventListener('click', function(e) {
             //document.querySelector('.main-container').top = widgetBtn.offsetTop + 100+'px';
             document.querySelector('.main-container').classList.toggle('active-facets');
-            
+
           });
         }
-        
+
         toggleFilters();
 
         var root = document.body;
@@ -58,14 +59,14 @@
               if (activeTab) {
                 let hash = document.location.hash.substr(1); // remove first #
                 hash = hash.replace(/&?\bt=(\w+)(&|$)/g, '$2'); // replace t=tabX& with &
-          
+
                 hash = '#t=' + activeTab + '&' + hash; // add new tab
                 hash = hash.replace(/&?\b(hd|hq)=\S*?(&|$)/g, '$2'); // remove hd and hq parameters
-          
+
                 hash = hash.replace(/&&+/g, '&');
                 url = document.location.origin + document.location.pathname + hash;
               }
-          
+
               return url;
             };
         const GetBindings = () => {
@@ -108,7 +109,7 @@
           }
           return user;
         };
-        
+
 
         class MyUserToggle extends Coveo.Component {
           constructor(element) {
@@ -120,7 +121,7 @@
             this.bind.onRootElement('buildingQuery', args => this.handleBuildingQuery(args));
             this.bind.onRootElement('changeAnalyticsCustomData', args => this.handleModifyAnalytics(args));
           }
-      
+
           toggle(opened) {
             this.opened = !this.opened;
             if (opened !== undefined) {
@@ -128,7 +129,7 @@
             }
             Coveo.$$(this.fieldset).toggle(this.opened);
           }
-      
+
           handleBuildingQuery() {
             const userDefinition = window.CURRENT_USER_PROFILE;
             if (this.active) {
@@ -137,60 +138,60 @@
               this.active = !this.active;
             }
           }
-      
+
           handleModifyAnalytics(args) {
             const userDefinition = window.CURRENT_USER_PROFILE;
             args.metaObject.user = userDefinition.sel;
             args.metaObject.role = userDefinition.sel;
           }
-      
+
           initDom() {
             this.element.classList.add('coveo-my-toggle');
-      
+
             Coveo.$$(this.element).text('User:');
             Coveo.$('.ion-chevron-down').on('click', () => this.toggle());
             this.dropdown = this.buildDropdown();
             this.fieldset = this.buildFieldSet();
-      
+
             Coveo.$$(this.element).append(this.dropdown.el, this.fieldset.el);
           }
-      
+
           setDropdownText(value) {
             const name = this.getName(value);
             this.dropdown.text(name);
           }
-      
+
           buildDropdown() {
             const dropdown = Coveo.$$('div', {
               class: 'dropdown'
             });
-      
+
             dropdown.on('click', () => this.toggle());
             return dropdown;
           }
-      
+
           buildFieldSet() {
             const fieldSet = Coveo.$$('fieldset');
             Coveo.$$(this.element).append(fieldSet.el);
-      
+
             Object.keys(window.USERS_MAP).forEach(k => {
               let label = this.buildLabel(k);
               fieldSet.append(label.el);
             });
-      
+
             return fieldSet;
           }
-      
+
           buildLabel(value) {
             const name = this.getName(value);
             const label = Coveo.$$('label', {}, name);
             label.addClass(`user-${value.replace(' ', '-')}`);
-      
+
             label.on('click', () => this.setUser(value));
-      
+
             return label;
           }
-      
+
           getName(value) {
             let name = window.USERS_MAP[value].name || value;
             if (name === 'Individual') {
@@ -198,12 +199,12 @@
             }
             return name;
           }
-      
+
           setUser(value) {
             if (!value || value === 'Individual') {
               value = 'Individual';
             }
-      
+
             const cookval = Coveo.Cookie.get(COOKIE_KEY);
             var doReload = cookval !== value;
             if (cookval == null) {
@@ -213,7 +214,7 @@
             }
             Coveo.Cookie.set(COOKIE_KEY, value);
             this.setDropdownText(value);
-      
+
             this.dropdown.removeClass(['user-Individual', 'user-Business', 'user-Family']);
             $('body').removeClass(['Individual', 'Business','Family']);
             $('body').addClass(`${value}`);
@@ -246,7 +247,7 @@
             }
           }
         }
-      
+
         MyUserToggle.ID = 'MyUserToggle';
         Coveo.Initialization.registerAutoCreateComponent(MyUserToggle);
        /**
@@ -256,7 +257,7 @@
        class MyFeatured extends Coveo.Component {
          constructor(element, options, bindings, result) {
            super(element, MyFeatured.ID);
-     
+
            this.options = Coveo.ComponentOptions.initComponentOptions(element, MyFeatured, options);
            if (result.isTopResult) {
              const badge = this.getBadge();
@@ -264,7 +265,7 @@
              $$(resultFrame).prepend(badge.el);
            }
          }
-     
+
          getBadge() {
            const container = this.getBadgeContainer();
            const highlight = this.getBadgeHighlight();
@@ -273,7 +274,7 @@
            container.append(highlight.el);
            return container;
          }
-     
+
          getBadgeContainer() {
            const container = $$('div', {
              className: 'custom-coveo-badge'
@@ -281,7 +282,7 @@
            container.el.style.position = 'relative';
            return container;
          }
-     
+
          getBadgeText() {
            const text = $$(
              'div',
@@ -292,21 +293,21 @@
            );
            return text;
          }
-     
+
          getBadgeHighlight() {
            const highlight = $$('div', {
              className: 'coveo-result-highlight coveo-custom-featured'
            });
-     
+
            return highlight;
          }
        }
        MyFeatured.ID = 'MyFeatured';
        Coveo.Initialization.registerAutoCreateComponent(MyFeatured);
-     
+
        /* globals Coveo */
        const $$$1 = Coveo.$$;
-     
+
        /**
         * ART result
         * Is triggered when ART (Machine Learning) is kicking in
@@ -320,17 +321,17 @@
              $$$1(resultFrame).prepend(badge.el);
            }
          }
-     
+
          getBadge() {
            const container = this.getBadgeContainer();
            const highlight = this.getBadgeHighlight();
            const text = this.getBadgeText();
            highlight.append(text.el);
-     
+
            container.append(highlight.el);
            return container;
          }
-     
+
          getBadgeContainer() {
            const container = $$$1('div', {
              className: 'custom-coveo-badge'
@@ -338,7 +339,7 @@
            container.el.style.position = 'relative';
            return container;
          }
-     
+
          getBadgeText() {
            const text = $$$1(
              'div',
@@ -349,21 +350,21 @@
            );
            return text;
          }
-     
+
          getBadgeHighlight() {
            const highlight = $$$1('div', {
              className: 'coveo-result-highlight coveo-custom-ART'
            });
-     
+
            return highlight;
          }
        }
-     
+
        MyART.ID = 'MyART';
        Coveo.Initialization.registerAutoCreateComponent(MyART);
-     
+
        /* globals Coveo */
-     
+
        /**
         * Image result
         * Shows (external) image for Result
@@ -371,7 +372,7 @@
        class MyImage extends Coveo.Component {
          constructor(element, options, bindings, result) {
            super(element, MyImage.ID);
-     
+
            let imagePath = result.raw.myimage;
            if (imagePath) {
              let imagesPerTypeMap = {
@@ -386,7 +387,7 @@
              if (imagePath==undefined) imagePath='';
              imagePath = imagePath.replace('aki_policy=medium','aki_policy=large');
            }
-     
+
            let divHtml = imagePath
              ? `<div class="myimage"><img src="${imagePath}" onerror="this.src='emptyP.png';" ></div>`
              : '<div class="noimage" style="width:92px;height:138px"></div>';
@@ -399,10 +400,10 @@
              .appendTo(element);
          }
        }
-     
+
        MyImage.ID = 'MyImage';
        Coveo.Initialization.registerAutoCreateComponent(MyImage);
-     
+
        //***************************
        //Image result for movie (Movie People)
        //  Shows an image from an external website. The field myimage is used as a reference
@@ -425,12 +426,12 @@
            }
          }
        }
-     
+
        MyImageMovie.ID = 'MyImageMovie';
        Coveo.CoveoJQuery.registerAutoCreateComponent(MyImageMovie);
-     
+
        /* globals Coveo */
-     
+
        /**
         * MyBackground result
         * Shows image/color background gradient on the result template
@@ -445,7 +446,7 @@
              this.addImage();
            }
          }
-     
+
          addImage() {
            let url = this.result.raw.myimage;
            let imagesPerTypeMap = {
@@ -456,7 +457,7 @@
              People: `https://image.tmdb.org/t/p/w138_and_h175_face${url}`,
              'Movie People': `https://image.tmdb.org/t/p/w138_and_h175_face${url}`
            };
-     
+
            let imageUrl = imagesPerTypeMap[this.result.raw.mytype];
            if (imageUrl==undefined) imageUrl='';
            imageUrl = imageUrl.replace('aki_policy=medium','aki_policy=large');
@@ -493,17 +494,17 @@
                });
            }
          }
-     
-         
+
+
        }
-     
+
        MyBackground.ID = 'MyBackground';
        MyBackground.options = {
          showPoster: Coveo.ComponentOptions.buildBooleanOption({ defaultValue: false }),
          showUser: Coveo.ComponentOptions.buildBooleanOption({ defaultValue: false })
        };
        Coveo.Initialization.registerAutoCreateComponent(MyBackground);
-     
+
        /* globals Coveo */
        /**
         * Details and Related
@@ -517,12 +518,12 @@
             this.$parent = $el.parent();
             let $tabs = [$(`<div class="RelatedTab" data-name="Details" title="Details">Details</div>`)];
             let queries = [];
-      
+
             $('.CoveoMyResultsRelated', this.$parent).each((i, el) => {
               let tabName = el.dataset.name;
-      
+
               let fields = (el.dataset.fields || '').split(';');
-      
+
               let skip = fields.length ? true : false; // default to false if no data-fields is set.
               fields.forEach(f => {
                 // Validate that if we have data-fields set on a tab, the result has it.
@@ -531,10 +532,10 @@
                   skip = false;
                 }
               });
-      
+
               //Fill the queries to check for results later on
               queries.push({ result: result, dataset: el.dataset, tab: tabName, parent: this.$parent });
-              
+
               if (!skip) {
                 //Check if there are results on the tab
                 $tabs.push($(`<div class="RelatedTab" data-name="${tabName}" title="${tabName}">${tabName}</div>`));
@@ -542,18 +543,18 @@
             });
             //Check if we have results for each of the tabs
             this.checkQueries(queries);
-      
+
             $el.prepend($tabs);
-      
+
             this.result = result;
             this.$el = $el;
-      
+
             $('.RelatedTab', $el).on('click', e => {
               $('.RelatedTab.active', $el).removeClass('active');
               $(e.target).addClass('active');
               let name = e.target.dataset.name;
               $('.related-content', this.$parent).hide();
-      
+
               let $newTab = $('.related-content.' + name, this.$parent);
               if ($newTab.length) {
                 $newTab.show();
@@ -563,10 +564,10 @@
                 }
               }
             });
-      
+
             $('.RelatedTab[data-name="Details"]', $el).addClass('active');
           }
-      
+
           //***************************
           //composeQuery
           //  Creates a new query for the checkQuery function
@@ -583,7 +584,7 @@
                 fieldcontent = fieldcontent.replace(/\(.*\)/g, '');
                 //Seems that if you format the field in the UI, it gets the formatted value
                 fieldcontent = fieldcontent.replace(/[;()]/g, ' ');
-                
+
                 //Comma's must be replaced by ","
                 fieldcontent = fieldcontent.replace(/,/g, '","');
                 //In Elastic the : means a field query
@@ -596,7 +597,7 @@
             newquery = newquery.replace('movie script - Screenplays for You', '');
             return newquery;
           }
-      
+
           //***************************
           //checkQuery
           //  Checks the query for all the relatedTabs. Based upon the groupby fields the tab will be made visible or not
@@ -610,11 +611,11 @@
             queryBuilder.enableQuerySyntax = true;
             queryBuilder.enableDuplicateFiltering = false;
             queryBuilder.excerptLength = 200;
-      
+
             queryBuilder.timezone = GetBindings().queryController.lastQueryBuilder.timezone;
             queryBuilder.numberOfResults = 0;
             queryBuilder.groupByRequests = fields;
-      
+
             queryBuilder.expression.add(query);
             if (partial === 'true') {
               queryBuilder.enablePartialMatch = true;
@@ -648,7 +649,7 @@
                 });
               });
           }
-      
+
           doWeHaveIt(tocheck, value) {
             let wehaveit = false;
             $.each(tocheck, function(index, obj) {
@@ -658,7 +659,7 @@
             });
             return wehaveit;
           }
-      
+
           //***************************
           //  checkQueries
           //  builds up the total query to execute for the relatedTabs
@@ -668,7 +669,7 @@
             let checkQueriesWithPartialMatch = partialMatch => {
               let fields = [];
               let query = [];
-      
+
               queries.forEach(f => {
                 if (f.dataset.partialMatch === partialMatch && f.dataset.keyCheck) {
                   // Build a single query with an OR on all queries
@@ -685,20 +686,20 @@
                 this.checkQuery(fields, query.join(' OR '), partialMatch, queries);
               }
             };
-      
+
             checkQueriesWithPartialMatch('true');
             checkQueriesWithPartialMatch('false');
           }
         }
-      
+
         MyDetailsAndRelated.ID = 'MyDetailsAndRelated';
         MyDetailsAndRelated.options = {
          pipeline: Coveo.ComponentOptions.buildLocalizedStringOption()
         };
         Coveo.Initialization.registerAutoCreateComponent(MyDetailsAndRelated);
-      
+
        /* globals Coveo */
-     
+
        /**
         * Music image
         * Show MusicImage
@@ -706,7 +707,7 @@
        class MyMusicImage extends Coveo.Component {
          constructor(element, options, bindings, result) {
            super(element, MyMusicImage.ID);
-     
+
            let divHtml = '<div class="noimagemusic" style="width:64px;height:64px"></div>'; // default
            if (result.raw.myimage) {
              divHtml = `<div class="myimage"><img src="//lastfm-img2.akamaized.net/i/u/64s/${result.raw.myimage}"></div>`;
@@ -716,9 +717,9 @@
        }
        MyMusicImage.ID = 'MyMusicImage';
        Coveo.Initialization.registerAutoCreateComponent(MyMusicImage);
-     
+
        /* globals Coveo */
-     
+
        /**
         * ImageSmall
         * Render small image
@@ -726,7 +727,7 @@
        class MyImageSmall extends Coveo.Component {
          constructor(element, options, bindings, result) {
            super(element, MyImageSmall.ID);
-     
+
            let imagePath = result.raw.myimage;
            if (imagePath) {
              let imagesPerTypeMap = {
@@ -739,7 +740,7 @@
              };
              imagePath = imagesPerTypeMap[result.raw.mytype] || '';
            }
-     
+
            let divHtml = imagePath ? `<div class="myimage"><img src="${imagePath}"></div>` : '<div class="noimage" style="width:34px;"></div>';
            Coveo.$(divHtml)
              .on('click', e => {
@@ -750,10 +751,10 @@
              .appendTo(element);
          }
        }
-     
+
        MyImageSmall.ID = 'MyImageSmall';
        Coveo.Initialization.registerAutoCreateComponent(MyImageSmall);
-     
+
       var FieldnameAvail = "@mydateavail";
       var FieldnameAvailClean = "mydateavail";
       var NrOfMonths = 0;
@@ -781,11 +782,11 @@
         }
         return result;
       }
-     
+
        /* globals Coveo, musicBoost */
-     
+
        let _my_location_promise = null;
-     
+
        let getLocation = () => {
          if (!_my_location_promise) {
            _my_location_promise = new Promise(resolve => {
@@ -801,7 +802,7 @@
          }
          return _my_location_promise;
        };
-     
+
        /**
         * Results Related
         * Shows related results based upon the current result, a new query is executed
@@ -815,7 +816,7 @@
             $(element)
               .addClass('related-content ' + this.options.name)
               .hide();
-      
+
             Coveo.Assert.exists(result);
             this.buildElements();
             this.updateElementVisibility();
@@ -823,17 +824,17 @@
               this.showMoreResults();
             }
           }
-      
+
           buildElements() {
             let _this = this;
             _this.buildHeader();
             _this.buildResults();
           }
-      
+
           showMoreResultsExternal() {
             getLocation().then(this._showMoreResultsExternal.bind(this));
           }
-      
+
           _showMoreResultsExternal(globalnear) {
             //Getting results from an external source (NOT Coveo)
             //This is very tailored towards getting Movie Tickets from Google
@@ -844,7 +845,7 @@
             for (let i = 0; i < a.length; i++) {
               let fieldcontent = this.result.raw[a[i]];
               let reFieldName = new RegExp(`\\[FIELD${i + 1}\\]`, 'g'); // to replace all [FIELD#]
-      
+
               if (fieldcontent) {
                 allfieldsmissing = false;
                 fieldcontent = '' + fieldcontent; //make sure it's a string
@@ -859,7 +860,7 @@
               }
               newquery = newquery.replace(reFieldName, fieldcontent || '');
             }
-      
+
             if (allfieldsmissing) {
               // fieldcontent is invalid or missing, the query will return everything.
               // So we show "No related" instead.
@@ -903,7 +904,7 @@
                 //});
               }
               //torender = getElementsByXPath( xpath[0], html);
-      
+
               //console.log(torender);
               if (torender) {
                 _this.showingMoreResults = true;
@@ -923,7 +924,7 @@
               }
             });
           }
-          
+
           preventEventPropagation() {
            this.preventEventPropagationOn(Coveo.QueryEvents);
            this.preventEventPropagationOn(Coveo.OmniboxEvents);
@@ -948,7 +949,7 @@
             this.updateElementVisibility();
             this.preventEventPropagation();
             this.showingMoreResults = true;
-            
+
             if (this.options.keyCheck) {
               let queryBuilder = new Coveo.QueryBuilder();
               //Copy settings from last Query Builder
@@ -977,7 +978,7 @@
               for (i = 0; i < a.length; i++) {
                 let fieldcontent = this.result.raw[a[i]];
                 let reFieldName = new RegExp(`\\[FIELD${i + 1}\\]`, 'g'); // to replace all [FIELD#]
-      
+
                 let fieldExpr = '';
                 let fieldExprES = '';
                 if (fieldcontent) {
@@ -987,7 +988,7 @@
       fieldcontent = fieldcontent.replace(/\(.*\)/g, '');
                   //Seems that if you format the field in the UI, it gets the formatted value
                   fieldExpr = fieldcontent.replace(/[;()]/g, ' ');
-      
+
                   //In Elastic the : means a field query
                   fieldExprES = fieldExpr.replace(':', ' ');
                   //Comma's must be replaced by ","
@@ -1025,7 +1026,7 @@
                 queryBuilder.expression.add(newquery);
                 _this.expandquery = this.expandedQuery || newquery;
               }
-              
+
               if (this.options.partialMatch) {
                 queryBuilder.enablePartialMatch = true;
                 queryBuilder.partialMatchKeywords = 4;
@@ -1044,7 +1045,7 @@
               _this.showMoreResultsExternal();
             }
           }
-      
+
           expandQuery() {
             Coveo.$('.CoveoFacet').coveo('reset');
             Coveo.$('#search').coveo('state', 'hd', this.expandedComment);
@@ -1055,7 +1056,7 @@
             Coveo.$('#search').coveo('logSearchEvent', customEventCause, {});
             Coveo.$('#search').coveo('executeQuery');
           }
-      
+
           buildHeader() {
             this.header = Coveo.$('<div/>')
               .addClass('coveo-folding-header')
@@ -1076,7 +1077,7 @@
               this.noResultsCaption.show();
             }
           }
-      
+
           scrollToResultElement() {
             Coveo.$(window).scrollTop(
               Coveo.$(this.element)
@@ -1084,7 +1085,7 @@
                 .position().top
             );
           }
-      
+
           displayThoseResults(results) {
             let _this = this;
             this.results.empty();
@@ -1095,15 +1096,15 @@
                 .appendTo(this.results);
             } else {
               this.showExpand = Coveo.$(`<div class="coveo-folding-footer-section-for-less"/>`).click(_this.expandQuery.bind(_this));
-      
+
               let help = this.options.help;
               if (help) {
                 this.showExpand.hover(onMouseOverHelp.bind(null, help), onMouseOutHelp.bind(null, help));
               }
-      
+
               let $a = Coveo.$(`<a class="coveo-folding-show-more">Expand to: ${this.expandedComment}</a>`);
               this.showExpand.append($a);
-      
+
               this.showExpand.appendTo(this.results);
             }
            /* debugger;
@@ -1121,12 +1122,12 @@
               _this.renderChildResult(result);
             });
           }
-      
+
           renderChildResult(childResult) {
             let binding = GetBindings();
             Coveo.QueryUtils.setStateObjectOnQueryResult(binding.queryStateModel.get(), childResult);
             Coveo.QueryUtils.setSearchInterfaceObjectOnQueryResult(binding.searchInterface, childResult);
-      
+
             let addToContainer = (container, childResult) => {
               if (container) {
                 this.autoCreateComponentsInsideResult(container, childResult);
@@ -1134,7 +1135,7 @@
                 this.results.append(container);
               }
             };
-      
+
             let containerOrPromise = this.options.resultTemplate.instantiateToElement(childResult,{
              wrapInDiv: true,
              checkCondition: true,
@@ -1148,7 +1149,7 @@
               addToContainer(containerOrPromise, childResult);
             }
           }
-      
+
           autoCreateComponentsInsideResult(element, result) {
             //return Coveo.Initialization.automaticallyCreateComponentsInsideResult(element, result);
             Coveo.Assert.exists(element);
@@ -1159,7 +1160,7 @@
             Coveo.Initialization.automaticallyCreateComponentsInside(element, initParameters, [MyResultsRelated.ID]);
           }
         }
-      
+
         MyResultsRelated.ID = 'MyResultsRelated';
         MyResultsRelated.options = {
           resultTemplate: Coveo.ComponentOptions.buildTemplateOption({
@@ -1189,11 +1190,11 @@
           alwaysShow: Coveo.ComponentOptions.buildBooleanOption({ defaultValue: false }),
           indent: Coveo.ComponentOptions.buildNumberOption()
         };
-      
+
         Coveo.Initialization.registerAutoCreateComponent(MyResultsRelated);
-      
-     
-      
+
+
+
        window.USERS_MAP = usersMap;
        window.CURRENT_USER_PROFILE = usersMap[getUser()];
        $('body').addClass(window.CURRENT_USER_PROFILE.sel);
@@ -1204,7 +1205,7 @@
           userrole: window.CURRENT_USER_PROFILE.sel
         });
       });
-  
+
        Coveo.init(root);
 
       });
@@ -1212,7 +1213,7 @@
   </head>
 
 <body id="search" class='CoveoSearchInterface' data-pipeline='Search' data-enable-history="true" data-auto-trigger-query="true" data-debug=true data-expression="" data-results-per-page='10'>
-    
+
   <header class='header'>
     <div class='container'>
       <div class='header__left'>
@@ -1229,7 +1230,7 @@
         <div id="user-menu" class='show-md__above user-menu'>
           <div id="current-user">
             <div class="CoveoMyUserToggle"></div>
-            
+
           </div>
           <i class="ionicons ion-chevron-down"></i>
         </div>
@@ -1240,7 +1241,7 @@
     </div>
   </header>
 
-    
+
   <div class="CoveoPromotedResultsBadge"
     data-show-badge-for-recommended-results="true"
     data-caption-for-recommended="Recommended by Coveo ML"
@@ -1303,7 +1304,7 @@
             </div>
             <div class="results-card__main">
               <div class="CoveoFieldValue room-type widget-capsule" data-field="@myroomtype"></div>
-              <a class="CoveoResultLink"></a>  
+              <a class="CoveoResultLink"></a>
               <div class='amenities'>
                 <div class="CoveoExcerpt"></div>
                 {{
@@ -1313,7 +1314,7 @@
                     <span class='amenities__item'> {{- amenities[i]}}</span>
                   {{
                   }
-                }} 
+                }}
                 <span>...</span>
               </div>
               <div class='results-card__footer'>
@@ -1356,13 +1357,13 @@
                     <tr data-field="@myamenities" data-facet='none' data-caption="Amenities" data-split-values="true"></tr>
                 </table>
               </div>
-              
+
               <div class="CoveoMyResultsRelated Attractions coveo-details" data-result-template-id="Default" data-name="Attractions" data-normal-caption="Attractions"
                 data-title-caption="Related attractions (based upon city)" data-expanded-caption="Hide Related Attractions" data-no-results-caption="No related attractions found"
                 data-query='@mycity="[FIELD1]" @source==Attractions @myimage' data-key-check='@source;Attractions' data-expanded-comment="Show Attractions where city is '[FIELD1]'"
                 data-extra-boost=false data-fields="mycity" data-partial-match=false data-number-Of-Results=5 data-help='' data-pipeline='default'>
               </div>
-  
+
               <div class="CoveoMyResultsRelated News coveo-details" data-result-template-id="Default" data-name="News" data-normal-caption="News" data-title-caption="Related news (based upon country)"
                 data-expanded-caption="Hide Related News" data-no-results-caption="No related news found" data-query='@mycountry="[FIELD1]" @documenttype==Article @myimage'
                 data-key-check='@documenttype;Article' data-expanded-comment="Show News with country: [FIELD1] "
@@ -1383,7 +1384,7 @@
         <div class="CoveoPager"></div>
         <div class="CoveoResultsPerPage"></div>
     </div>
-  
+
     <div class='main-column'>
       <div class="CoveoMapWraper">
         <div style="display:none">
