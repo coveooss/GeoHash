@@ -31,8 +31,6 @@
           const addRecommendationPadding =  "{\"padding\": \"trending\" }";
             Coveo.SearchEndpoint.endpoints['default'] = new Coveo.SearchEndpoint({
                 restUri: 'https://platform.cloud.coveo.com/rest/search',
-                accessToken: '***REMOVED***'
-                //accessToken: '***REMOVED***',
             });
             Coveo.SearchEndpoint.endpoints['default'].options.queryStringArguments.mlParameters = addRecommendationPadding;
         })
