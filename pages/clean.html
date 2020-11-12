@@ -2,7 +2,7 @@
 
 	<!DOCTYPE html>
 	<html>
-		
+
 	<head>
 		<title>DynamicHouse</title>
 		<meta charset="UTF-8">
@@ -20,30 +20,19 @@
 <script type="text/javascript" src="https://static.cloud.coveo.com/interfaceeditor/v1.13/js/cultures/toolbox-en.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/whatwg-fetch@3.0.0/dist/fetch.umd.min.js"></script>
 
-		
+
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
       Coveo.SearchEndpoint.endpoints['default'] = new Coveo.SearchEndpoint({
         restUri: 'https://platform.cloud.coveo.com/rest/search',
-        accessToken: '***REMOVED***',
-        //accessToken: '***REMOVED***',
+        accessToken: 'YOUR-TOKEN',
         queryStringArguments: {
-          organizationId: '***REMOVED***'
+          organizationId: 'YOUR-ORG-ID'
         },
     });
-			/*Coveo.SearchEndpoint.endpoints['default'] = new Coveo.SearchEndpoint({
-  restUri: '/rest/search',
-  accessToken: '***REMOVED***',
-  queryStringArguments: {
-    organizationId: '***REMOVED***'
-  },
-  renewAccessToken: function() {
-    window.location = window.location.pathname + window.location.hash
-  }
-});*/
 	/*		Coveo.Analytics.options.endpoint.defaultValue = 'https://usageanalytics.coveo.com' */
 Coveo.Analytics.options.searchHub.defaultValue = 'default';
-Coveo.Analytics.options.organization.defaultValue = '***REMOVED***';
+Coveo.Analytics.options.organization.defaultValue = 'geohashdemopgjz3v7b';
 var searchPageRoot = document.querySelector('.CoveoSearchInterface')
 Coveo.init(searchPageRoot)
 
@@ -51,7 +40,7 @@ searchPageRoot.addEventListener("afterComponentsInitialization", function () {
   var analytics = document.querySelector('.CoveoAnalytics');
   if (analytics != null) {
     Coveo.get(analytics).setOriginContext('Hosted');
-  }			
+  }
 });
 
 /*
@@ -62,25 +51,25 @@ var authenticate = function () {
     searchPageRoot.addEventListener("afterInitialization", function () {
       return canEdit ? resolve(canEdit): reject(canEdit);
     });
-  })   
+  })
 };
 var currentPage = 'DynamicHouse';
 var currentLocation = encodeURIComponent(window.location.href);
 var edit = function (id) {
-  window.location = '/pages/***REMOVED***/DynamicHouse?edit=1&return='+currentLocation;
+  window.location = '/pages/geohashdemopgjz3v7b/DynamicHouse?edit=1&return='+currentLocation;
 };
 
 var del = function (id) {
-  var url = '/rest/organizations/***REMOVED***/pages/8da2f0d8-069a-45c5-b7f0-8dfe9a2cba2f';
+  var url = '/rest/organizations/geohashdemopgjz3v7b/pages/8da2f0d8-069a-45c5-b7f0-8dfe9a2cba2f';
   var payload = { id: id };
   fetch(url, {
     method : 'DELETE',
     headers: {
-      'X-CSRF-TOKEN':'***REMOVED***',
-      'Authorization': 'Bearer ***REMOVED***'
+      'X-CSRF-TOKEN':'X',
+      'Authorization': 'Bearer X'
     }
   }).then(function() {
-    window.location.href = "https://platform.cloud.coveo.com/admin/#***REMOVED***/search/search-pages/"
+    window.location.href = "https://platform.cloud.coveo.com/admin/#geohashdemopgjz3v7b/search/search-pages/"
   })
 };
 
@@ -95,7 +84,7 @@ new Coveo.InterfaceEditor.InterfaceToolbox({
 */
 		})
 	</script>
-	
+
 	</head>
 		<body>
 			<html><head></head><body><div id="search" class="CoveoSearchInterface" data-enable-history="true" data-pipeline="Search">
@@ -203,7 +192,7 @@ new Coveo.InterfaceEditor.InterfaceToolbox({
       <div class="CoveoResultsPerPage"></div>
     </div>
   </div>
-<a href="/rest/organizations/***REMOVED***/pages/logout?redirect=https%3a%2f%2fplatform.cloud.coveo.com%2fpages%2f***REMOVED***%2fDynamicHouse" title="Logout" style="position:absolute; right:14px; top: 14px; opacity: 0.5; color:black; height: 24px; width: 24px;">
+<a href="/rest/organizations/geohashdemopgjz3v7b/pages/logout?redirect=https%3a%2f%2fplatform.cloud.coveo.com%2fpages%2fgeohashdemopgjz3v7b%2fDynamicHouse" title="Logout" style="position:absolute; right:14px; top: 14px; opacity: 0.5; color:black; height: 24px; width: 24px;">
     <svg enable-background="new 0 0 14 14" viewBox="0 0 14 14" xmlns="http://www.w3.org/2000/svg">
         <g fill="currentColor" transform="matrix(0 1 -1 0 20 0)">
             <path d="m7.699 8.591 1.05 1.05c.49.49 1.05 0 1.05 0s .49-.56 0-1.05l-2.31-2.381c-.28-.28-.7-.28-.98 0l-2.309 2.451c-.49.49 0 .98 0 .98s.56.49 1.05 0l1.05-1.05v7.91c0 .42.35.7.7.7s.7-.35.7-.7z"></path>

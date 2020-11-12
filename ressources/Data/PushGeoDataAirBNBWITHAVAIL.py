@@ -24,9 +24,9 @@ import time
 import base64
 import urllib.request
 
-sourceId = '***REMOVED***-xim6ba3g4ute5oooqzpv7z2k5i'
-orgId = '***REMOVED***'
-apiKey = '***REMOVED***'
+sourceId = 'geohashdemopgjz3v7b-xim6ba3g4ute5oooqzpv7z2k5i'
+orgId = 'geohashdemopgjz3v7b'
+apiKey = 'xxcf195af3-6989-49e3-a6bc-603b7f1b36a5'
 
 # for the availability
 goldMember = ''

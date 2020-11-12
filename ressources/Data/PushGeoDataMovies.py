@@ -22,8 +22,8 @@ import html
 import zlib
 import base64
 
-sourceId = '***REMOVED***-wpunbkzftbwyby6wbjbw6u2a7a'
-orgId = '***REMOVED***'
+sourceId = 'geohashdemopgjz3v7b-wpunbkzftbwyby6wbjbw6u2a7a'
+orgId = 'geohashdemopgjz3v7b'
 apiKey = 'xx01076794-74e0-489f-97d6-700655fdde93'
 
 
