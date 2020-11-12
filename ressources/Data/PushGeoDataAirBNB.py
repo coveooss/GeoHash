@@ -27,13 +27,10 @@ from random import seed
 from random import randint
 
 noratings = True
-sourceId = 'geohashdemopgjz3v7b-xim6ba3g4ute5oooqzpv7z2k5i'
-orgId = 'geohashdemopgjz3v7b'
-apiKey = 'xxcf195af3-6989-49e3-a6bc-603b7f1b36a5'
+sourceId = 'YOUR-SOURCE-ID'
+orgId = 'YOUR-ORG-ID'
+apiKey = 'YOUR-KEY'
 BASE_URL= 'https://travel.coveodemo.com/Locations/'
-#apiKey = 'xxcfc7ce27-36f2-4890-b2f8-fa3839023ad5'
-#sourceId = 'geohashdemowa9fxpp6-rmvppmk4oezvrb5vd7r5ru2iqe'
-#orgId = 'geohashdemowa9fxpp6'
 # for the availability
 goldMember = ''
 silverMember = ''
@@ -88,9 +85,9 @@ def addNeighboorhood(neighboorhood):
 
 def add_document(house):
     global goldMember
-    global silverMember 
-    global platinumMember 
-    global publicMember 
+    global silverMember
+    global platinumMember
+    global publicMember
     global neigboorhoods
     global push
     global noratings
@@ -108,11 +105,11 @@ def add_document(house):
     mydoc = Document(document_id)
     # Set the fileextension
     mydoc.FileExtension = ".html"
-    
+
     #print (house)
-    
+
     imageurl = house['picture_url'].replace('aki_policy=large','aki_policy=medium')
-    
+
     """ if not os.path.exists("images\\"+house['id']+".jpg"):
       try:
         print ("Get Image "+str(house['id']))
@@ -120,7 +117,7 @@ def add_document(house):
         time.sleep(0.1)
       except:
         return ""
-    
+
     imageurl="images\\"+house['id']+".jpg" """
     # Build up the quickview/preview (HTML)
     content = "<html><head><meta charset='UTF-16'><meta http-equiv='Content-Type' content='text/html; charset=UTF-16'>"
@@ -183,7 +180,7 @@ def add_document(house):
     #content = content + " .country::before {content: 'Country'; padding-right: 5px; font-size: 0.8em;  font-style: italic;}"
     content = content + "</style>"
     content = content + "</head>"
-    # The below is NOT allowed 
+    # The below is NOT allowed
     # content = content + "<script>"
     # content = content + "  function removeHigh() {"
     # content = content + "    console.log('removeHigh called');"
@@ -228,7 +225,7 @@ def add_document(house):
     #content = content + "<div class='header_info'>Amenities</div>"
     amenities = house['amenities'].replace('"','').replace('{','').replace('}','').split(',')
     #content = content + "<div class='amenities'>"+  '<br>'.join(amenities)+"</div>"
-    
+
     content = content + "</body></html>"
     #put content also in fields for Sitecore dumps
     #meta["sitecorePage"] = content
@@ -238,7 +235,7 @@ def add_document(house):
     # Geocode
 
     body = ""
-    
+
     mydoc.SetContentAndZLibCompress(content)
     meta["connectortype"] = "Push"
     meta["mytype"] = "Houses"
@@ -248,7 +245,7 @@ def add_document(house):
     meta["mycity"] = house['city']
     meta["myprice"] = house["price"].replace('$','') #new
     price = float(meta["myprice"].replace(",",''))
-    
+
     if (price<=130):
        members = "Public;Gold;Silver;Platinum"
     if (price>130 and price<180):
@@ -278,7 +275,7 @@ def add_document(house):
           rating = randint(1, 5)
           myrate = addRating({'id':house['id']+'E', 'house_id':house['id'], 'type':'Family','age':'35-50','rate':rating})
           push.Add(myrate)
-        
+
       if (price<=180):
         rating = randint(1, 5)
         myrate = addRating({'id':house['id']+'F', 'house_id':house['id'], 'type':'Individual','age':'20-30','rate':rating})
@@ -301,7 +298,7 @@ def add_document(house):
     meta["mybathroomsf"] = house['bathrooms'] #new
     meta["mybedroomsf"] = house['bedrooms'] #new
     meta["mybedsf"] = house['beds'] #new
-    
+
     meta["mybedtype"] = house['bed_type'] #new
     meta["myneighbourhood"] = house['neighbourhood_cleansed'] #new
     # check if we already have the neighboorhood
@@ -321,11 +318,11 @@ def add_document(house):
     #meta["sitecoreurl"] = BASE_URL+house['country']+"/"+house['city']+"/"+house['id']
     meta["sitecoreurl"] = (BASE_URL+house['country']+"/"+house['id']).lower()
     meta["myroomprop"] = house['property_type']+";"+house['property_type']+"|"+house['room_type']
-    
+
     meta["title"] = house["name"]
     # meta["topparentid"]= movie['id']
     mydoc.ClickableUri = meta["sitecoreurl"]#house['listing_url']
-    
+
     mydoc.Date = house['last_scraped']
 
     meta["mylon"] = house['longitude']
@@ -352,7 +349,7 @@ def parseFile(filename):
         #print (row)
         if (line_count>0):
           mydoc = add_document(row)
-          
+
           if (not mydoc==""):
             if not nopush:
               push.Add(mydoc)

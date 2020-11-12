@@ -2,7 +2,7 @@
 
 	<!DOCTYPE html>
 	<html>
-		
+
 	<head>
 		<title>DynamicHouse</title>
 		<meta charset="UTF-8">
@@ -20,27 +20,16 @@
 <script type="text/javascript" src="https://static.cloud.coveo.com/interfaceeditor/v1.13/js/cultures/toolbox-en.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/whatwg-fetch@3.0.0/dist/fetch.umd.min.js"></script>
 
-		
+
 	<script>
 		document.addEventListener('DOMContentLoaded', function () {
       Coveo.SearchEndpoint.endpoints['default'] = new Coveo.SearchEndpoint({
         restUri: 'https://platform.cloud.coveo.com/rest/search',
-        accessToken: 'xx3030617e-f7a8-467c-86d5-d700d9639730',
-        //accessToken: 'xx5b469bd4-25c6-4d8b-8216-511108abef4c',
+        accessToken: 'YOUR-TOKEN',
         queryStringArguments: {
-          organizationId: 'geohashdemopgjz3v7b'
+          organizationId: 'YOUR-ORG-ID'
         },
     });
-			/*Coveo.SearchEndpoint.endpoints['default'] = new Coveo.SearchEndpoint({
-  restUri: '/rest/search',
-  accessToken: 'eyJhbGciOiJIUzI1NiJ9.eyJ2OCI6dHJ1ZSwib3JnYW5pemF0aW9uIjoiZ2VvaGFzaGRlbW9wZ2p6M3Y3YiIsInVzZXJJZHMiOlt7InByb3ZpZGVyIjoiRW1haWwgU2VjdXJpdHkgUHJvdmlkZXIiLCJuYW1lIjoid25pam1laWplckBjb3Zlby5jb20iLCJ0eXBlIjoiVXNlciJ9XSwicm9sZXMiOlsicXVlcnlFeGVjdXRvciIsInNlYXJjaFBhZ2VSZWFkIiwic2VhcmNoUGFnZVdyaXRlIl0sInVzZXJEaXNwbGF5TmFtZSI6IldpbSBOaWptZWlqZXIiLCJleHAiOjE1ODE0MDgyNzgsImlhdCI6MTU4MTMyMTg3OH0.GULDoj-ALBw6lxRYY3YvcL99ESj790xebA6ne68_QxA',
-  queryStringArguments: {
-    organizationId: 'geohashdemopgjz3v7b'
-  },
-  renewAccessToken: function() {
-    window.location = window.location.pathname + window.location.hash
-  }
-});*/
 	/*		Coveo.Analytics.options.endpoint.defaultValue = 'https://usageanalytics.coveo.com' */
 Coveo.Analytics.options.searchHub.defaultValue = 'default';
 Coveo.Analytics.options.organization.defaultValue = 'geohashdemopgjz3v7b';
@@ -51,7 +40,7 @@ searchPageRoot.addEventListener("afterComponentsInitialization", function () {
   var analytics = document.querySelector('.CoveoAnalytics');
   if (analytics != null) {
     Coveo.get(analytics).setOriginContext('Hosted');
-  }			
+  }
 });
 
 /*
@@ -62,7 +51,7 @@ var authenticate = function () {
     searchPageRoot.addEventListener("afterInitialization", function () {
       return canEdit ? resolve(canEdit): reject(canEdit);
     });
-  })   
+  })
 };
 var currentPage = 'DynamicHouse';
 var currentLocation = encodeURIComponent(window.location.href);
@@ -76,8 +65,8 @@ var del = function (id) {
   fetch(url, {
     method : 'DELETE',
     headers: {
-      'X-CSRF-TOKEN':'a059919a-088f-481c-8f06-5ec1875d634d',
-      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiJ9.eyJ2OCI6dHJ1ZSwib3JnYW5pemF0aW9uIjoiZ2VvaGFzaGRlbW9wZ2p6M3Y3YiIsInVzZXJJZHMiOlt7InByb3ZpZGVyIjoiRW1haWwgU2VjdXJpdHkgUHJvdmlkZXIiLCJuYW1lIjoid25pam1laWplckBjb3Zlby5jb20iLCJ0eXBlIjoiVXNlciJ9XSwicm9sZXMiOlsicXVlcnlFeGVjdXRvciIsInNlYXJjaFBhZ2VSZWFkIiwic2VhcmNoUGFnZVdyaXRlIl0sInVzZXJEaXNwbGF5TmFtZSI6IldpbSBOaWptZWlqZXIiLCJleHAiOjE1ODE0MDgyNzgsImlhdCI6MTU4MTMyMTg3OH0.GULDoj-ALBw6lxRYY3YvcL99ESj790xebA6ne68_QxA'
+      'X-CSRF-TOKEN':'X',
+      'Authorization': 'Bearer X'
     }
   }).then(function() {
     window.location.href = "https://platform.cloud.coveo.com/admin/#geohashdemopgjz3v7b/search/search-pages/"
@@ -95,7 +84,7 @@ new Coveo.InterfaceEditor.InterfaceToolbox({
 */
 		})
 	</script>
-	
+
 	</head>
 		<body>
 			<html><head></head><body><div id="search" class="CoveoSearchInterface" data-enable-history="true" data-pipeline="Search">
