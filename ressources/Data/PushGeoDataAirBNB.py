@@ -117,7 +117,6 @@ def add_document(house):
         time.sleep(0.1)
       except:
         return ""
-
     imageurl="images\\"+house['id']+".jpg" """
     # Build up the quickview/preview (HTML)
     content = "<html><head><meta charset='UTF-16'><meta http-equiv='Content-Type' content='text/html; charset=UTF-16'>"
@@ -196,10 +195,12 @@ def add_document(house):
     content = content + "<title>"+house['name']+"</title>"
     content = content + "<body>"
 
+
     content = content + "<div class='header'>"
     content = content + "<div class='imageblock'><div class='image'>"
     if (house['picture_url']):
         content = content + " <img class='imageimg' src='"+house['picture_url']+"' onerror=\"javascript:this.src='images/emptyHouse.jpg'\">"
+
     content = content + "</div><div class='side' style='padding-left: 370px;'><div class='title'>" + house["name"]+"</div>"
     #content = content + "<ul>"
     #content = content + "<li>By<span class='host'>"+house["host_name"]+"<span></li>"
@@ -211,6 +212,7 @@ def add_document(house):
     #content = content + "<div class='infos'><div class='inf_title'>Property type</div><div class='inf_value'>"+house["property_type"]+"</div></div>"
     #content = content + "<div class='infos'><div class='inf_title'>Room type</div><div class='inf_value'>"+house["room_type"]+"</div></div>"
     #content = content + "<div class='infos'><div class='inf_title'>Bed type</div><div class='inf_value'>"+house["bed_type"]+"</div></div>"
+
     #content = content + "<div class='header_info'>Summary</div>"
     content = content + "<div class='info'>"+  house["summary"]+"</div>"
     if house["description"]:
@@ -225,7 +227,6 @@ def add_document(house):
     #content = content + "<div class='header_info'>Amenities</div>"
     amenities = house['amenities'].replace('"','').replace('{','').replace('}','').split(',')
     #content = content + "<div class='amenities'>"+  '<br>'.join(amenities)+"</div>"
-
     content = content + "</body></html>"
     #put content also in fields for Sitecore dumps
     #meta["sitecorePage"] = content
@@ -235,7 +236,6 @@ def add_document(house):
     # Geocode
 
     body = ""
-
     mydoc.SetContentAndZLibCompress(content)
     meta["connectortype"] = "Push"
     meta["mytype"] = "Houses"
@@ -245,7 +245,6 @@ def add_document(house):
     meta["mycity"] = house['city']
     meta["myprice"] = house["price"].replace('$','') #new
     price = float(meta["myprice"].replace(",",''))
-
     if (price<=130):
        members = "Public;Gold;Silver;Platinum"
     if (price>130 and price<180):
@@ -322,13 +321,11 @@ def add_document(house):
     meta["title"] = house["name"]
     # meta["topparentid"]= movie['id']
     mydoc.ClickableUri = meta["sitecoreurl"]#house['listing_url']
-
     mydoc.Date = house['last_scraped']
 
     meta["mylon"] = house['longitude']
     meta["mylat"] = house['latitude']
     #Dump meta inside new JSON for import in Sitecore
-    currentExport.append(meta)
 
     for key in meta:
       if ('sitecore' not in key):
