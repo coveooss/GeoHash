@@ -27,13 +27,10 @@ from random import seed
 from random import randint
 
 noratings = True
-sourceId = 'geohashdemopgjz3v7b-xim6ba3g4ute5oooqzpv7z2k5i'
-orgId = 'geohashdemopgjz3v7b'
-apiKey = 'xxcf195af3-6989-49e3-a6bc-603b7f1b36a5'
-BASE_URL= 'https://travel.coveo.com/Locations/'
-#apiKey = 'xxcfc7ce27-36f2-4890-b2f8-fa3839023ad5'
-#sourceId = 'geohashdemowa9fxpp6-rmvppmk4oezvrb5vd7r5ru2iqe'
-#orgId = 'geohashdemowa9fxpp6'
+sourceId = 'YOUR-SOURCE-ID'
+orgId = 'YOUR-ORG-ID'
+apiKey = 'YOUR-KEY'
+BASE_URL= 'https://travel.coveodemo.com/Locations/'
 # for the availability
 goldMember = ''
 silverMember = ''
@@ -41,6 +38,7 @@ platinumMember = ''
 publicMember = ''
 # for the neighboorhoods
 neigboorhoods = {}
+currentExport=list()
 
 def addAvailability(avail):
     document_id = 'https://availability?id='+avail['id']
@@ -87,13 +85,14 @@ def addNeighboorhood(neighboorhood):
 
 def add_document(house):
     global goldMember
-    global silverMember 
-    global platinumMember 
-    global publicMember 
+    global silverMember
+    global platinumMember
+    global publicMember
     global neigboorhoods
     global push
     global noratings
     global BASE_URL
+    global currentExport
     # Use username as unique identifier
     # id,listing_url,scrape_id,last_scraped,name,summary,space,description,experiences_offered,neighborhood_overview,notes,transit,access,interaction,house_rules,thumbnail_url,medium_url,picture_url,xl_picture_url,host_id,host_url,host_name,host_since,host_location,host_about,host_response_time,host_response_rate,host_acceptance_rate,host_is_superhost,host_thumbnail_url,host_picture_url,host_neighbourhood,host_listings_count,host_total_listings_count,host_verifications,host_has_profile_pic,host_identity_verified,street,neighbourhood,neighbourhood_cleansed,neighbourhood_group_cleansed,city,state,zipcode,market,smart_location,country_code,country,latitude,longitude,is_location_exact,property_type,room_type,accommodates,bathrooms,bedrooms,beds,bed_type,amenities,square_feet,price,weekly_price,monthly_price,security_deposit,cleaning_fee,guests_included,extra_people,minimum_nights,maximum_nights,minimum_minimum_nights,maximum_minimum_nights,minimum_maximum_nights,maximum_maximum_nights,minimum_nights_avg_ntm,maximum_nights_avg_ntm,calendar_updated,has_availability,availability_30,availability_60,availability_90,availability_365,calendar_last_scraped,number_of_reviews,number_of_reviews_ltm,first_review,last_review,review_scores_rating,review_scores_accuracy,review_scores_cleanliness,review_scores_checkin,review_scores_communication,review_scores_location,review_scores_value,requires_license,license,jurisdiction_names,instant_bookable,is_business_travel_ready,cancellation_policy,require_guest_profile_picture,require_guest_phone_verification,calculated_host_listings_count,calculated_host_listings_count_entire_homes,calculated_host_listings_count_private_rooms,calculated_host_listings_count_shared_rooms,reviews_per_month
 
@@ -106,11 +105,11 @@ def add_document(house):
     mydoc = Document(document_id)
     # Set the fileextension
     mydoc.FileExtension = ".html"
-    
+
     #print (house)
-    
+
     imageurl = house['picture_url'].replace('aki_policy=large','aki_policy=medium')
-    
+
     """ if not os.path.exists("images\\"+house['id']+".jpg"):
       try:
         print ("Get Image "+str(house['id']))
@@ -118,14 +117,15 @@ def add_document(house):
         time.sleep(0.1)
       except:
         return ""
-    
     imageurl="images\\"+house['id']+".jpg" """
     # Build up the quickview/preview (HTML)
     content = "<html><head><meta charset='UTF-16'><meta http-equiv='Content-Type' content='text/html; charset=UTF-16'>"
+#    content = "<link href=\"https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap\" rel=\"stylesheet\">"
     content = content + "<style>"
+    content = content + " body > div:nth-child(2) { display: none }"
+    content = content + " [id^=CoveoHighlight] {background-color: white !important;}"
     content = content + " .side .title {"
-    content = content + "    font-size: 24pt;"
-    content = content + "    color: #009ddc;"
+    content = content + "    color: #000 !important; font-size: 16pt !important;padding-bottom: 15px;"
     content = content + "  }"
     content = content + "  .side .host {"
     content = content + "    display:inline-block;"
@@ -137,11 +137,11 @@ def add_document(house):
     content = content + "    color: gray;"
     content = content + "  }"
     content = content + "  .side .header_info {"
-    content = content + "    font-size: 14pt;"
-    content = content + "    font-weight: bold;"
+    content = content + "    font-size: 12pt;"
+    #content = content + "    font-weight: bold;"
     content = content + "  }"
     content = content + "  .side .info {"
-    content = content + "    font-size: 11pt;padding-bottom: 15px;"
+    content = content + "    font-size: 10pt;padding-bottom: 15px;"
     content = content + "  }"
     content = content + "  .side .infos {"
     content = content + "    color: gray;padding-bottom: 15px;display:inline-block;padding-right: 10px;"
@@ -166,29 +166,53 @@ def add_document(house):
     content = content + " .amenities { font-size: 11pt; column-count: 3;max-width: 50%;}"
     content = content + " .inf_title { display:inline-block;padding-right: 5px; font-size: 0.8em;  font-style: italic;}"
     content = content + " .inf_value { display:inline-block;}"
-    content = content + " .host::before {content: 'By'; padding-right: 5px; font-size: 0.8em;  font-style: italic;}"
-    content = content + " .city::before {content: 'In'; padding-right: 5px; font-size: 0.8em;  font-style: italic;}"
-    content = content + " .state::before {content: 'State'; padding-right: 5px; font-size: 0.8em;  font-style: italic;}"
-    content = content + " .country::before {content: 'Country'; padding-right: 5px; font-size: 0.8em;  font-style: italic;}"
+    content = content + " body {font-family: 'Verdana', sans-serif !important;}"
+    content = content + " ul {list-style: none;font-size:11pt}"
+    content = content + " li {padding-right: 5px}"
+    content = content + " .host {padding-right: 5px}"
+    content = content + " .city {padding-right: 5px}"
+    content = content + " .state {padding-right: 5px}"
+    content = content + " .country {padding-right: 5px}"
+    #content = content + " .host::before {content: 'By'; padding-right: 5px; font-size: 0.8em;  font-style: italic;}"
+    #content = content + " .city::before {content: 'In'; padding-right: 5px; font-size: 0.8em;  font-style: italic;}"
+    #content = content + " .state::before {content: 'State'; padding-right: 5px; font-size: 0.8em;  font-style: italic;}"
+    #content = content + " .country::before {content: 'Country'; padding-right: 5px; font-size: 0.8em;  font-style: italic;}"
     content = content + "</style>"
     content = content + "</head>"
+    # The below is NOT allowed
+    # content = content + "<script>"
+    # content = content + "  function removeHigh() {"
+    # content = content + "    console.log('removeHigh called');"
+    # content = content + "    var high=document.querySelectorAll('[id^=\"CoveoHighlight\"]');"
+    # content = content + "    high.forEach(k => { k.style.backgroundColor =\"white\"; } );"
+    # content = content + " }"
+    # content = content + "document.addEventListener('DOMContentLoaded', function () {"
+    # content = content + " removeHigh();"
+    # content = content + " document.querySelector('body > div:nth-child(2)').style.display=\"none\";"
+    # content = content + "});"
+    # content = content + "</script>"
     # content = content+ "<title>"+movie['title']+"    ("+movie["release_date"].split('-')[0]+")</title>"
     content = content + "<title>"+house['name']+"</title>"
     content = content + "<body>"
-    
+
+
     content = content + "<div class='header'>"
     content = content + "<div class='imageblock'><div class='image'>"
     if (house['picture_url']):
         content = content + " <img class='imageimg' src='"+house['picture_url']+"' onerror=\"javascript:this.src='images/emptyHouse.jpg'\">"
-    content = content + "</div><div class='side'><div class='title'>" + house["name"]+"</div>"
-    content = content + "<div class='host'>"+house["host_name"]+"</div>"
-    content = content + "<div class='city'>"+house["city"]+"</div>"
-    content = content + "<div class='state'>"+house["state"]+"</div>"
-    content = content + "<div class='country'>"+house["country"]+"</div>"
+
+    content = content + "</div><div class='side' style='padding-left: 370px;'><div class='title'>" + house["name"]+"</div>"
+    #content = content + "<ul>"
+    #content = content + "<li>By<span class='host'>"+house["host_name"]+"<span></li>"
+    #content = content + "<li>In<span class='city'>"+house["city"]+"<span></li>"
+    #content = content + "<li>State<span class='state'>"+house["state"]+"<span></li>"
+    #content = content + "<li>Country<span class='country'>"+house["country"]+"<span></li>"
+    #content = content + "</ul>"
     content = content + "<div class='header_info'>Overview</div>"
-    content = content + "<div class='infos'><div class='inf_title'>Property type</div><div class='inf_value'>"+house["property_type"]+"</div></div>"
-    content = content + "<div class='infos'><div class='inf_title'>Room type</div><div class='inf_value'>"+house["room_type"]+"</div></div>"
-    content = content + "<div class='infos'><div class='inf_title'>Bed type</div><div class='inf_value'>"+house["bed_type"]+"</div></div>"
+    #content = content + "<div class='infos'><div class='inf_title'>Property type</div><div class='inf_value'>"+house["property_type"]+"</div></div>"
+    #content = content + "<div class='infos'><div class='inf_title'>Room type</div><div class='inf_value'>"+house["room_type"]+"</div></div>"
+    #content = content + "<div class='infos'><div class='inf_title'>Bed type</div><div class='inf_value'>"+house["bed_type"]+"</div></div>"
+
     #content = content + "<div class='header_info'>Summary</div>"
     content = content + "<div class='info'>"+  house["summary"]+"</div>"
     if house["description"]:
@@ -203,7 +227,6 @@ def add_document(house):
     #content = content + "<div class='header_info'>Amenities</div>"
     amenities = house['amenities'].replace('"','').replace('{','').replace('}','').split(',')
     #content = content + "<div class='amenities'>"+  '<br>'.join(amenities)+"</div>"
-    
     content = content + "</body></html>"
     #put content also in fields for Sitecore dumps
     #meta["sitecorePage"] = content
@@ -213,7 +236,6 @@ def add_document(house):
     # Geocode
 
     body = ""
-    
     mydoc.SetContentAndZLibCompress(content)
     meta["connectortype"] = "Push"
     meta["mytype"] = "Houses"
@@ -223,7 +245,6 @@ def add_document(house):
     meta["mycity"] = house['city']
     meta["myprice"] = house["price"].replace('$','') #new
     price = float(meta["myprice"].replace(",",''))
-    
     if (price<=130):
        members = "Public;Gold;Silver;Platinum"
     if (price>130 and price<180):
@@ -253,7 +274,6 @@ def add_document(house):
           rating = randint(1, 5)
           myrate = addRating({'id':house['id']+'E', 'house_id':house['id'], 'type':'Family','age':'35-50','rate':rating})
           push.Add(myrate)
-        
       if (price<=180):
         rating = randint(1, 5)
         myrate = addRating({'id':house['id']+'F', 'house_id':house['id'], 'type':'Individual','age':'20-30','rate':rating})
@@ -276,7 +296,6 @@ def add_document(house):
     meta["mybathroomsf"] = house['bathrooms'] #new
     meta["mybedroomsf"] = house['bedrooms'] #new
     meta["mybedsf"] = house['beds'] #new
-    
     meta["mybedtype"] = house['bed_type'] #new
     meta["myneighbourhood"] = house['neighbourhood_cleansed'] #new
     # check if we already have the neighboorhood
@@ -296,21 +315,15 @@ def add_document(house):
     #meta["sitecoreurl"] = BASE_URL+house['country']+"/"+house['city']+"/"+house['id']
     meta["sitecoreurl"] = (BASE_URL+house['country']+"/"+house['id']).lower()
     meta["myroomprop"] = house['property_type']+";"+house['property_type']+"|"+house['room_type']
-    
+
     meta["title"] = house["name"]
     # meta["topparentid"]= movie['id']
     mydoc.ClickableUri = meta["sitecoreurl"]#house['listing_url']
-    
     mydoc.Date = house['last_scraped']
 
     meta["mylon"] = house['longitude']
     meta["mylat"] = house['latitude']
     #Dump meta inside new JSON for import in Sitecore
-    filename = "output/"+house['country']+"/"+str(house['id'])+".json"
-    os.makedirs(os.path.dirname(filename), exist_ok=True)
-    filerev = open(filename,"wb" )
-    filerev.write(json.dumps(meta, ensure_ascii=False).encode('utf-8'))
-    filerev.close()
 
     for key in meta:
       if ('sitecore' not in key):
@@ -321,6 +334,8 @@ def add_document(house):
 def parseFile(filename):
   global push
   global nopush
+  global currentExport
+  currentExport = list()
   with open(filename,encoding='utf8') as csv_file:
     #C:\Users\wnijmeijer\Downloads\listings (1).csv
       csv_reader = csv.DictReader(csv_file, delimiter=',')
@@ -329,7 +344,6 @@ def parseFile(filename):
         #print (row)
         if (line_count>0):
           mydoc = add_document(row)
-          
           if (not mydoc==""):
             if not nopush:
               push.Add(mydoc)
@@ -337,6 +351,13 @@ def parseFile(filename):
 
             print (str(line_count)+" from: "+filename)
         line_count += 1
+  #Save the export file
+  filename = "output/"+filename+"_ForSiteCore.json"
+  os.makedirs(os.path.dirname(filename), exist_ok=True)
+  filerev = open(filename,"wb" )
+  filerev.write(json.dumps(currentExport, ensure_ascii=False).encode('utf-8'))
+  filerev.close()
+
   return
 
 
