@@ -76,6 +76,14 @@ Fields to hold the demo data:
 For this instance we used houses from the Netherlands and we pushed them into a source. See \Resources\Data.
 Important for the data is that they have the proper GeoHash codes in them. The IPE script in \Resources\Data\IPE will add them.
 
+## Setup your keys
+Rename the `init_EXAMPLE.js` file to `init.js`.
+Change the contents and replace `ORG_ID`, `API_KEY` to the Org_Id of Coveo and the API_Key created within that organization. The API_Key should have the priviliges: 
+* Analytics > Analytics Data (Push)
+* Search > Execute Queries
+
+Replace the `GOOGLE_API_KEY` with your own google api key.
+
 ## Structure
 
 The code is written in [typescript](http://www.typescriptlang.org/) and compiled using [webpack](https://webpack.github.io/)
