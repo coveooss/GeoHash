@@ -18,6 +18,7 @@
     <script src="js/coveo.googleMap.extension.js"></script>
     <script src="js/templates/templates.js"></script>
     <script src="markerclusterer.js"></script>
+    <script src="init.js"></script>
     <link
       rel="stylesheet"
       type="text/css"
@@ -27,11 +28,7 @@
       href="https://fonts.googleapis.com/css?family=Montserrat:400,600&display=swap"
       rel="stylesheet"
     />
-    <script
-      src="https://maps.googleapis.com/maps/api/js?libraries=geometry&key=YOUR-GOOGLE-KEY"
-      async
-      defer
-    ></script>
+   
     <!-- for datepicker -->
     <!--<script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
@@ -41,10 +38,6 @@
     <script>
       document.addEventListener("DOMContentLoaded", function () {
         const addRecommendationPadding = '{"padding": "trending" }';
-        Coveo.SearchEndpoint.endpoints["default"] = new Coveo.SearchEndpoint({
-          restUri: "https://platform.cloud.coveo.com/rest/search",
-          accessToken: "YOUR-TOKEN",
-        });
         Coveo.SearchEndpoint.endpoints[
           "default"
         ].options.queryStringArguments.mlParameters = addRecommendationPadding;
