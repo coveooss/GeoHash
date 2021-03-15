@@ -440,12 +440,24 @@ export class CoveoGeoHashMap extends Component {
     //Since the already executed advancedExpressions contains all the proper logic.
     //if (args.queryBuilder.tab === "default") {
     var thequery = '';
-    if (args.results.basicExpression == undefined) {
+    if (args.results.executionReport == undefined) {
       thequery = this.currentFullQuery + ' ' + this.createAdvancedQuery();
 
 
     } else {
-      thequery = this.currentFullQuery + ' ' + this.createAdvancedQuery();
+      if (args.results.basicExpression!=null) {
+        thequery += args.results.basicExpression+' ';
+      }
+      if (args.results.advancedExpression!=null) {
+        thequery += args.results.advancedExpression+' ';
+      }
+      if (args.results.constantExpression!=null) {
+        thequery += args.results.constantExpression+' ';
+      }
+    }
+    //do nothing when no results.
+    if (args.results.totalCountFiltered==0) {
+      return;
     }
     this.closeAllInfoWindows();
     this.clearResultMarkers();
@@ -526,6 +538,8 @@ export class CoveoGeoHashMap extends Component {
           fieldname;
         var myRequest = {
           field: fieldname,
+          debug: true,
+          pipeline: args.query.pipeline,
           sortCriteria: "occurrences",
           maximumNumberOfValues: 15000,
           queryOverride: thequery //args.queryBuilder.computeCompleteExpression()
